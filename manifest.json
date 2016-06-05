@@ -1,0 +1,40 @@
+//manifest.json
+
+{
+	"name": "tmp-Cyphor",
+	"description": "Bringing seamless information privacy to all your messaging applications",
+	"version": "0.0.0.1",
+	"manifest_version": 2,
+
+	"icons": {
+		"128": "/public/img/cyphor_logo_48.png"
+	},
+	"background": {
+		"persistent": true,
+		"scripts": [
+			"background/bower_components/pouchdb/dist/pouchdb.js",
+			"lib/ChromeServer.js",
+			"background/db.background.js",
+			"background/index.background.js"
+		]
+	},
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": [
+				"lib/ChromeConnect.js",
+				"content/index.content.js"
+			]
+		}
+	],
+	"permissions": [
+		"tabs", "http://*/*", "activeTab", "storage", "debugger"
+	],
+	"web_accessible_resources": [
+		"/application/parser/iframe/div.iframe.html"
+	],
+	"browser_action": {
+		"default_title": "Cyphor",
+		"default_popup": "public/modules/index.html"
+	}
+}
