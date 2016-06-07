@@ -2,7 +2,7 @@
 	<md-list>
 		<div ng-repeat="(domain, arr) in allCtrl.domains">
 			<md-list-item class="noright md-no-proxy">
-				<img ng-src="{{ 'http://' + domain + '/favicon.ico' }}" err-src="chrome-extension://eakjmbommdakdadpcpiememnojfhmgnj/public/img/cyphor_logo_transp_48.png " class="md-avatar"/>
+				<img ng-src="{{ 'http://' + domain + '/favicon.ico' }}" err-src="/public/img/cyphor_logo_transp_48.png " class="md-avatar"/>
 				<p>{{ (domain=='*')? 'All Domains' : domain }}</p>
 				<p>{{ arr.length }}</p>
 				<md-button aria-label="Go To Channel" class="md-icon-button" ui-sref="channels.domain({domain : domain})">

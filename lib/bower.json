@@ -1,0 +1,18 @@
+{
+  "name": "lib",
+  "homepage": "https://github.com/Angus-McLean/Cyphor-App",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "pouchdb": "^5.4.0"
+  }
+}
