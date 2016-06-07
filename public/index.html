@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Music-Downloader</title>
+
+		<!-- Stylesheets -->
+		<link rel="stylesheet" href="/public/bower_components/angular-material/angular-material.min.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" href="/public/css/styles.css">
+
+
+		<!-- Load Angular Components -->
+		<script type="text/javascript" src="/public/bower_components/angular/angular.min.js"></script>
+		<script type="text/javascript" src="/public/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+		<script type="text/javascript" src="/public/bower_components/angular-material/angular-material.min.js"></script>
+		<script type="text/javascript" src="/public/bower_components/angular-animate/angular-animate.min.js"></script>
+		<script type="text/javascript" src="/public/bower_components/angular-aria/angular-aria.min.js"></script>
+
+
+		<!-- Load Angular App -->
+		<script type="text/javascript" src="/public/js/app.js"></script>
+
+		<!-- Load Config -->
+		<script type="text/javascript" src="/public/js/config/colors.config.js"></script>
+
+		<!-- Load directives -->
+		<!-- <script type="text/javascript" src="/public/js/directives/sidebar/sidebar.directive.js"></script> -->
+
+		<!-- Load Services -->
+		<script type="text/javascript" src="/public/js/services/CyphorMessageClient.service.js"></script>
+		<script type="text/javascript" src="/public/js/services/pouchdb.service.js"></script>
+
+		<!-- Load Directives -->
+		<script type="text/javascript" src="/public/js/directives/errSrc.directive.js"></script>
+
+		<!-- Load Controllers -->
+		<script type="text/javascript" src="/public/js/controllers/sidenav.controller.js"></script>
+		<script type="text/javascript" src="/public/js/controllers/mainnav.controller.js"></script>
+		<script type="text/javascript" src="/public/js/controllers/channels.controller.js"></script>
+		<script type="text/javascript" src="/public/js/controllers/alldomains.controller.js"></script>
+		<!-- status controllers -->
+		<script type="text/javascript" src="/public/js/controllers/channels.domain.controller.js"></script>
+
+
+    </head>
+    <body ng-app="CyphorApp" ng-controller="mainNavCtrl" flex layout="column">
+		<div ng-include="'/public/views/header.view.html'"></div>
+		<div ng-include="'/public/views/sidenav.view.html'"></div>
+		<md-content ui-view flex layout="column"></md-content>
+    </body>
+</html>

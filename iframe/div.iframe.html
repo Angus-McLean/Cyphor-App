@@ -1,0 +1,64 @@
+<html>
+    <script type="text/javascript" src="/lib/bower_components/cryptojs/crypto.content.js"></script>
+	<script type="text/javascript" src="/lib/ChromeConnect.js"></script>
+    <script type="text/javascript" src="/iframe/iframe_script.js"></script>
+
+    <style type="text/css">
+        html, body{
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            border-width:0px;
+            border:none;
+            padding:0px;
+            margin:0px;
+            display:block;
+        }
+
+        .background-div {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-width: 200px;
+            max-height: 55px;
+            z-index: -100;
+            width:100%;
+            height:100%;
+            border-width:0px;
+            border:none;
+            padding:0px;
+            margin:0px;
+        }
+
+        .background-img{
+            position: absolute;
+            top: 0px;
+            right: 20px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /*
+        .background{
+            width: auto;
+            height: 100%;
+            max-width: 20%;
+            background: url(/img/Cyphor-Name-gray.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            position:absolute;
+            top: 3px;
+            right: 15px;
+        }*/
+
+    </style>
+    <body style="margin:0px;">
+        <div class="background-div">
+            <img id="cyphorgrey" class="background-img" src="/public/img/Cyphor-Name-gray.png">
+            <img id="cyphorgreen" display="none" class="background-img" src="/public/img/Cyphor-Name.png">
+        </div>
+        <!--<div id="cyphor-input" contenteditable="true" placeholder="Cyphor Encryption">-->
+
+        <!--</div>-->
+    </body>
+</html>

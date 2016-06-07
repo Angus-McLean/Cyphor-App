@@ -7,13 +7,15 @@
 	"manifest_version": 2,
 
 	"icons": {
-		"128": "/public/img/cyphor_logo_48.png"
+		"128": "/public/img/cyphor_logo_transp_48.png"
 	},
 	"background": {
 		"persistent": true,
 		"scripts": [
-			"background/bower_components/pouchdb/dist/pouchdb.js",
+			"lib/bower_components/pouchdb/dist/pouchdb.js",
+			"lib/bower_components/requirejs/require.min.js",
 			"lib/ChromeServer.js",
+			"background/channelDbMiddleware.background.js",
 			"background/db.background.js",
 			"background/index.background.js"
 		]
@@ -22,8 +24,20 @@
 		{
 			"matches": ["http://*/*", "https://*/*"],
 			"js": [
+				"lib/bower_components/requirejs/require.min.js",
 				"lib/ChromeConnect.js",
-				"content/index.content.js"
+				"lib/bower_components/cryptojs/crypto.content.js",
+				"content/index.content.js",
+				"content/decrypt.content.js",
+				"content/interceptor.content.js",
+				"content/CyphorDomLib.content.js",
+				"content/CyphorObserver.content.js",
+				"content/buildChannel.content.js",
+				"content/indexChannel.content.js",
+				"content/parseChannel.content.js",
+				"content/CyphorChannels.content.js",
+				"content/CyphorIframeLib.content.js",
+				"content/CyphorInput.content.js"
 			]
 		}
 	],
@@ -31,10 +45,10 @@
 		"tabs", "http://*/*", "activeTab", "storage", "debugger"
 	],
 	"web_accessible_resources": [
-		"/application/parser/iframe/div.iframe.html"
+		"/iframe/div.iframe.html"
 	],
 	"browser_action": {
 		"default_title": "Cyphor",
-		"default_popup": "public/modules/index.html"
+		"default_popup": "public/index.html"
 	}
 }

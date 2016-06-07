@@ -1,0 +1,124 @@
+
+Background :
+	- CyphorMessageClient (ChromeServer)
+		- description : Manages connections to all tabs + frames. Emits event messages.
+		- features :
+			- connect / disconnect : automatically adds and removes ports as they connect/disconnect
+			- emit : can emit events to all ports
+			- send : can send messages to a specific portNamespace
+
+	- db (pouchdb)
+		- description : Proxies chrome.runtime.onMessage to PouchDB api. Saves docs and emits changes.
+		- requires :
+			- CyphorMessageClient
+		- features :
+			- changes : routes change events to ports
+			- query :
+			- db requests
+		- messages :
+			- incoming :
+				- pouchdb:get
+				- pouchdb:query
+				- pouchdb:put
+				- pouchdb:drop
+			- outgoing :
+				- '*:change'
+				- '<domain name>:change'
+				- '<doc._id>:change'
+
+
+Content :
+	- CyphorMessageClient (ChromeConnect)
+		- description : Connects to ChromeServer
+		- features :
+			- emit : can emit events to all ports
+			- on : adds listener for that event, receives json object message. '*' triggers on all events
+
+	- interceptor.content.js (stand alone component)
+		- description : Adds user input intercept methods (addEventInterceptor, removeEventInterceptor) to Element.prototype.
+		- functions :
+			- addEventInterceptor (eventName, fn)
+			- removeEventInterceptor (eventName, fn) : if fn === true it will remove all listeners of that event on the Element
+		- where used :
+			- used in buildChannels to intercept user clicks when building a new channel
+
+	- buildChannel
+		- description : (relatively stateless..) triggered by initSaveChannel and returns parsedChannel to callback.
+		- requires :
+			- CyphorObserver : watch for removal of clicked elements when parsing out a channel
+			- CyphorDomLib : building paths between dom elements and build css selectors etc
+		- functions :
+			- initSaveChannel (callback) : Walks the user through the process of saving a channel.
+			 	Triggers callback with (err, channelObject) where channelObject === null if user cancelled the channel parse.
+
+	- CyphorObserver :
+		- description : processes mutations (additions and removals), triggers callback functions accordingly
+		- requires :
+		- features :
+		- functions :
+			- on
+			- observe
+			- removeObserver
+			- removeListener
+
+	- CyphorDomLib
+		- description : A simple library for buildingDomPaths, traversingDomPaths, buildingCssSelectors, etc
+		- features : Simply library functions (module is stateless)
+		- functions :
+			- parseNodeForActiveInputs
+			- parseNodeForActiveRecipients
+			- traversePath
+			- buildPath
+			- getBaseTextNode
+			- getFullPath
+			- getClassSelector
+			- getAttrSelector
+
+	- CyphorChannels :
+		- description :
+		- requires :
+		- features :
+		- functions :
+			- exposed :
+			- protected :
+				-
+		- messages :
+			- incoming :
+				'parse_new_channel' : (received on CyphorMessageClient) triggers a new channel save event
+			- outgoing :
+
+	- decrypt.content :
+		- description : Decrypts messages
+		- requires :
+		- features :
+		- functions :
+			- exposed :
+			- protected :
+		- messages :
+			- incoming :
+			- outgoing :
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////// template ////////////
+	- moduleName :
+		- description :
+		- requires :
+		- features :
+		- functions :
+			- exposed :
+			- protected :
+		- messages :
+			- incoming :
+			- outgoing :

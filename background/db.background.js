@@ -1,10 +1,10 @@
 // db.background.js
 console.log('db.background.js');
-(function (cont) {
+define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 
 	// Initialize PouchDB
 	var db = PouchDB('channels');
-	cont.db = db;
+	window.db = db;
 
 	/*
 	 * Add chrome.runtime listeners to process queries
@@ -47,7 +47,7 @@ console.log('db.background.js');
 
 		function validateDoc(doc, emit) {
 			for(var i in req.query){
-				if(!(doc[i] == req.query[i])) {
+				if(doc[i] != req.query[i]) {
 					return false;
 				}
 			}
@@ -74,7 +74,6 @@ console.log('db.background.js');
 	/*
 	 * Emit messages to CyphorMessageClient changes
 	 */
-	var msgCli = cont.CyphorMessageClient;
 
 	db.changes({
 		since: 'now',
@@ -87,11 +86,12 @@ console.log('db.background.js');
 		} else {
 			// doc was changed
 			msgCli.emit('*:change', change.doc);
-			msgCli.emit(change.doc.domain + ':change', change.doc);
+			msgCli.emit(change.doc.origin_url + ':change', change.doc);
 			msgCli.emit(change.doc._id + ':change', change.doc);
 		}
 	}).on('error', function (err) {
 		// handle errors
 	});
 
-})(window);
+});
+require(['db'], function(){});
