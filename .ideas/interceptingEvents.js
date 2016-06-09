@@ -15,7 +15,6 @@ KeyboardEvent = (function () {
 })()
 
 // CloneObject
-
 function CloneObject(orig) {
 	var obj = Object.create(Object.getPrototypeOf(orig));
 	console.log('cloned');
