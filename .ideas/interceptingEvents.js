@@ -10,7 +10,12 @@ function CloneObject(orig) {
 					//if(!GLOBAL_EVENTS[orig.type][j]) { GLOBAL_EVENTS[orig.type][j] = []; }
 					if(typeof orig[j] == 'function') {
 						//GLOBAL_EVENTS[orig.type][j].push('function');
-						return orig[j].bind(orig)
+						return function () {
+							var returnVal = orig[j].apply(orig, arguments);
+							ACCESS_LOG.push(orig.type + '.'+j+':'+returnVal);
+							return returnVal;
+						}
+						
 					} else {
 						if(typeof orig[j] != 'object'){
 							ACCESS_LOG.push(orig.type + '.'+j+':'+orig[j]);
@@ -52,7 +57,7 @@ EventTarget.prototype.addEventListener = (function () {
 		var execFunc = arguments[1];
 		arguments[1] = function () {
 			//console.log(arguments);
-			if((this == window || this instanceof Node) && cloneObjsArr.indexOf(eveType) >= 0){
+			if((this == window || this instanceof Node)){
 				//GLOBAL_EVENTS[arguments[0].type] = {};
 				arguments[0] = CloneObject(arguments[0], {});
 			}
@@ -70,7 +75,22 @@ EventTarget.prototype.addEventListener = (function () {
 
 
 
+function simulateInputEvent(element, type, character) {
+	evt = new KeyboardEvent(type, {
+		bubbles : true,
+		key : character,
+		ctrlKey : false,
+		shiftKey : false,
+		altKey : false,
+		metaKey : false,
+		repeat : false,
+		charCode : character.charCodeAt(0),
+		keyCode : character.charCodeAt(0),
+		which : character.charCodeAt(0)
+	});
 
+	element.dispatchEvent(evt);
+}
 
 function simulateKeyEvent(element, type, character) {
 	evt = new KeyboardEvent(type, {
