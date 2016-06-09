@@ -1,36 +1,27 @@
-// intercept an object (not fully complete I don't think)
-KeyboardEvent = (function () {
-	var orig = KeyboardEvent;
-
-	return function () {
-		console.log('new KeyboardEvent');
-		var real = new (Function.prototype.bind.apply(orig, arguments));
-		var obj = Object.create(orig.prototype);
-
-		console.log('new KeyboardEvent', real, obj);
-		// add whatever properties you want to object here..
-
-		return obj;
-	};
-})()
-
 // CloneObject
 function CloneObject(orig) {
 	var obj = Object.create(Object.getPrototypeOf(orig));
-	console.log('cloned');
+	//console.log('cloned');
 	for(var i in orig){
 		(function (j){
 			Object.defineProperty(obj, j, {
 				get : function () {
+
+					//if(!GLOBAL_EVENTS[orig.type][j]) { GLOBAL_EVENTS[orig.type][j] = []; }
 					if(typeof orig[j] == 'function') {
-						GLOBAL_EVENTS[orig.type][j] = 'function';
+						//GLOBAL_EVENTS[orig.type][j].push('function');
 						return orig[j].bind(orig)
 					} else {
+						if(typeof orig[j] != 'object'){
+							ACCESS_LOG.push(orig.type + '.'+j+':'+orig[j]);
+							//GLOBAL_EVENTS[orig.type][j].push(orig[j]);
+						}
 						if(j == 'isTrusted') {
 							return true;
+						} else {
+							return orig[j];
 						}
-						GLOBAL_EVENTS[orig.type][j] = orig[j];
-						return orig[j];
+
 					}
 				},
 				set : function (v) {
@@ -50,7 +41,8 @@ function CloneObject(orig) {
 
 
 var GLOBAL_CLONE;
-var GLOBAL_EVENTS = {};
+var ACCESS_LOG = [];
+//var GLOBAL_EVENTS = {};
 var cloneObjsArr = ["focus", "focusin", "mousedown", "selectionchange", "mouseup", "click", "keydown", "keypress", "textInput", "input", "keyup", "paste"];
 
 EventTarget.prototype.addEventListener = (function () {
@@ -60,12 +52,47 @@ EventTarget.prototype.addEventListener = (function () {
 		var execFunc = arguments[1];
 		arguments[1] = function () {
 			//console.log(arguments);
-			if(GLOBAL_CLONE && (this == window || this instanceof Node) && cloneObjsArr.indexOf(eveType) >= 0){
-				GLOBAL_EVENTS[arguments[0].type] = {};
-				arguments[0] = CloneObject2(arguments[0], {});
+			if((this == window || this instanceof Node) && cloneObjsArr.indexOf(eveType) >= 0){
+				//GLOBAL_EVENTS[arguments[0].type] = {};
+				arguments[0] = CloneObject(arguments[0], {});
 			}
 			return execFunc.apply(this, arguments);
 		}
 		return orig.apply(this, arguments);
 	}
 })();
+
+
+
+
+
+
+
+
+
+
+
+function simulateKeyEvent(element, type, character) {
+	evt = new KeyboardEvent(type, {
+		bubbles : true,
+		key : character,
+		ctrlKey : false,
+		shiftKey : false,
+		altKey : false,
+		metaKey : false,
+		repeat : false,
+		charCode : character.charCodeAt(0),
+		keyCode : character.charCodeAt(0),
+		which : character.charCodeAt(0)
+	});
+
+	element.dispatchEvent(evt);
+}
+
+setTimeout(function () {
+	ACCESS_LOG = []
+
+	simulateKeyEvent(document.activeElement, 'keydown', 'a')
+	simulateKeyEvent(document.activeElement, 'keypress', 'a')
+	simulateKeyEvent(document.activeElement, 'keyup', 'a')
+},2000);
