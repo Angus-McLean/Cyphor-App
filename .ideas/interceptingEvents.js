@@ -12,7 +12,8 @@ function CloneObject(orig) {
 						//GLOBAL_EVENTS[orig.type][j].push('function');
 						return function () {
 							var returnVal = orig[j].apply(orig, arguments);
-							ACCESS_LOG.push(orig.type + '.'+j+':'+returnVal);
+							var argStr = '('+ [].join.call(arguments,',') +')';
+							ACCESS_LOG.push(orig.type + '.'+ j + argStr +':'+returnVal);
 							return returnVal;
 						}
 						
@@ -49,7 +50,7 @@ var GLOBAL_CLONE;
 var ACCESS_LOG = [];
 //var GLOBAL_EVENTS = {};
 var cloneObjsArr = ["focus", "focusin", "mousedown", "selectionchange", "mouseup", "click", "keydown", "keypress", "textInput", "input", "keyup", "paste"];
-
+var cloneObjsArr2 = ["selectionchange", "keydown", "keypress", "textInput", "input", "keyup", "paste"];
 EventTarget.prototype.addEventListener = (function () {
 	var orig = EventTarget.prototype.addEventListener;
 	return function(){
@@ -57,9 +58,10 @@ EventTarget.prototype.addEventListener = (function () {
 		var execFunc = arguments[1];
 		arguments[1] = function () {
 			//console.log(arguments);
-			if((this == window || this instanceof Node)){
+			if((this == window || this instanceof Node) && cloneObjsArr2.indexOf(eveType) >= 0){
 				//GLOBAL_EVENTS[arguments[0].type] = {};
 				arguments[0] = CloneObject(arguments[0], {});
+				window.event = arguments[0];
 			}
 			return execFunc.apply(this, arguments);
 		}
