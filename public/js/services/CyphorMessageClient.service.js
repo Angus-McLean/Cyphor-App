@@ -39,7 +39,7 @@ angular.module('CyphorApp')
 			if(!event || typeof event != 'string') {
 				throw 'ChromeConnect.prototype.emit requires and event';
 			}
-			this.port.portMessage({event:event, message:message});
+			this.port.postMessage({event:event, message:message});
 		};
 
 		window.ChromeConnect = ChromeConnect;
