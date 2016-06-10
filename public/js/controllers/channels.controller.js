@@ -6,6 +6,7 @@ angular.module('CyphorApp')
 		this.isOpen = false;
 
 		$scope.parseNewChannel = function () {
+			console.log('clicked new channel');
 			var query = {active: true, currentWindow: true};
 			var routed = {
 				event : 'parse_new_channel'

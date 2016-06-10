@@ -1,6 +1,6 @@
 // channels.content.js
 
-define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient'], function (buildChannel, indexChannel, msgCli) {
+define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient', 'parseChannel'], function (buildChannel, indexChannel, msgCli, parseChannel) {
 
 	console.log('CyphorChannels.content.js', arguments);
 
@@ -18,7 +18,9 @@ define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient']
 				};
 				chrome.runtime.sendMessage(msgObj, function () {
 					console.log('saveDoc recieved', arguments);
+					
 					// the added channel will trigger and change event, which indexer will read and hence index the new saved channel
+					parseChannel.reprocessDOM();
 				});
 			}
 		});

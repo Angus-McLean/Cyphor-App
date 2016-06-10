@@ -97,7 +97,7 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 	msgCli.on(window.location.host + ':change', function (doc) {
 		// doc was inserted or changed.. index the new / changed channel
 		handleIndexing(doc);
-
+		
 		// parseDOMForActiveChannels is triggered on this event in the observeChannel module
 	});
 
