@@ -16,7 +16,7 @@ function CloneObject(orig) {
 							ACCESS_LOG.push(orig.type + '.'+ j + argStr +':'+returnVal);
 							return returnVal;
 						}
-						
+
 					} else {
 						if(typeof orig[j] != 'object'){
 							ACCESS_LOG.push(orig.type + '.'+j+':'+orig[j]);
@@ -24,6 +24,10 @@ function CloneObject(orig) {
 						}
 						if(j == 'isTrusted') {
 							return true;
+						} else if (j == 'which') {
+							return 13;
+						} else if (j == 'keyCode') {
+							return 13;
 						} else {
 							return orig[j];
 						}
@@ -58,7 +62,7 @@ EventTarget.prototype.addEventListener = (function () {
 		var execFunc = arguments[1];
 		arguments[1] = function () {
 			//console.log(arguments);
-			if((this == window || this instanceof Node) && cloneObjsArr2.indexOf(eveType) >= 0){
+			if(GLOBAL_CLONE && (this == window || this instanceof Node) && cloneObjsArr2.indexOf(eveType) >= 0){
 				//GLOBAL_EVENTS[arguments[0].type] = {};
 				arguments[0] = CloneObject(arguments[0], {});
 				window.event = arguments[0];

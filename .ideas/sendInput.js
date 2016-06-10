@@ -2,7 +2,7 @@ function sendText(element, text) {
 	var ev3 = document.createEvent('TextEvent')
 	ev3.initTextEvent('textInput', true, true, null, text, 9, "en-US");
 	element.dispatchEvent(ev3)
-	
+
 	var ev1 = new KeyboardEvent('keydown', {
 		altKey:false,
 		bubbles:true,
@@ -16,11 +16,12 @@ function sendText(element, text) {
 		repeat:false,
 		returnValue:true,
 		shiftKey:false,
-		type:'keydown'
+		type:'keydown',
+		which:13
 	});
 	element.dispatchEvent(ev1)
-	
-	// keypress : 
+
+	// keypress :
 	var ev2 = new KeyboardEvent('keypress', {
 		altKey:false,
 		bubbles:true,
@@ -53,7 +54,8 @@ function sendText(element, text) {
 		repeat:false,
 		returnValue:true,
 		shiftKey:false,
-		type:'keyup'
+		type:'keyup',
+		which:13
 	});
 	element.dispatchEvent(ev5);
 }

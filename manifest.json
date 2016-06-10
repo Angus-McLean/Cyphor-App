@@ -24,6 +24,7 @@
 		{
 			"matches": ["http://*/*", "https://*/*"],
 			"js": [
+				"content/injectInterceptor.content.js",
 				"lib/bower_components/requirejs/require.min.js",
 				"lib/ChromeConnect.js",
 				"lib/bower_components/cryptojs/crypto.content.js",
@@ -38,14 +39,16 @@
 				"content/CyphorChannels.content.js",
 				"content/CyphorIframeLib.content.js",
 				"content/CyphorInput.content.js"
-			]
+			],
+			"run_at": "document_start"
 		}
 	],
 	"permissions": [
 		"tabs", "http://*/*", "activeTab", "storage", "debugger"
 	],
 	"web_accessible_resources": [
-		"/iframe/div.iframe.html"
+		"/iframe/div.iframe.html",
+		"/injectables/EventInterceptor.injectable.js"
 	],
 	"browser_action": {
 		"default_title": "Cyphor",
