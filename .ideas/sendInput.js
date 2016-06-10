@@ -1,61 +1,58 @@
-function sendText(element, text) {
-	var ev3 = document.createEvent('TextEvent')
-	ev3.initTextEvent('textInput', true, true, null, text, 9, "en-US");
-	element.dispatchEvent(ev3)
 
-	var ev1 = new KeyboardEvent('keydown', {
-		altKey:false,
-		bubbles:true,
-		cancelable:true,
-		ctrlKey:false,
-		isTrusted:true,
-		key:'Enter',
-		keyCode:13,
-		location:0,
-		metaKey:false,
-		repeat:false,
-		returnValue:true,
-		shiftKey:false,
-		type:'keydown',
-		which:13
-	});
-	element.dispatchEvent(ev1)
+function triggerTextInput(elem, text) {
+	var initialization = {
+		initializationType : 'create',
+		eventFamily : 'TextEvent',
+		initMethod : 'initTextEvent',
+		initArgs : ['textInput', true, true, null, text, 9, "en-US"]
+	};
+	var overwriteFields = {
+		isTrusted : true
+	};
+	var simulateEventObj = {
+		type : 'textInput',
+		init : initialization,
+		fields : overwriteFields
+	};
+	var event = new CustomEvent('CyphorInputEvent', {detail:simulateEventObj});
+	elem.dispatchEvent(event);
+}
 
-	// keypress :
-	var ev2 = new KeyboardEvent('keypress', {
-		altKey:false,
-		bubbles:true,
-		cancelable:true,
-		charCode:13,
-		ctrlKey:false,
-		isTrusted:true,
-		key:'Enter',
-		keyCode:13,
-		location:0,
-		metaKey:false,
-		repeat:false,
-		returnValue:true,
-		shiftKey:false,
-		type:'keypress',
-		which:13
+function triggerKeyEvent(elem, keyObj) {
+	var initialization = {
+		initializationType : 'create',
+		eventFamily : 'KeyboardEvent',
+		initMethod : 'initKeyboardEvent',
+		initArgs : [
+			keyObj.type,
+			true,
+			true,
+			null,
+			keyObj.charCode,
+			keyObj.key
+		]
+	};
+	var overwriteFields = keyObj;
+	var simulateEventObj = {
+		type : keyObj.type,
+		init : initialization,
+		fields : overwriteFields
+	};
+	var event = new CustomEvent('CyphorInputEvent', {detail:simulateEventObj});
+	elem.dispatchEvent(event);
+}
+
+
+function sendMessage(elem, text) {
+	triggerTextInput(elem, text);
+	['keydown', 'keypress','keyup'].forEach(function (keyType) {
+		triggerKeyEvent(elem, {
+			type : keyType,
+			charCode : 13,
+			isTrusted: true,
+			key : 'Enter',
+			keyCode:13,
+			which:13
+		});
 	});
-	element.dispatchEvent(ev2)
-	// keyup
-	var ev5 = new KeyboardEvent('keyup', {
-		altKey:false,
-		bubbles:true,
-		cancelable:true,
-		ctrlKey:false,
-		isTrusted:true,
-		key:'Enter',
-		keyCode:13,
-		location:0,
-		metaKey:false,
-		repeat:false,
-		returnValue:true,
-		shiftKey:false,
-		type:'keyup',
-		which:13
-	});
-	element.dispatchEvent(ev5);
 }
