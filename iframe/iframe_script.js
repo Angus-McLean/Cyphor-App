@@ -62,6 +62,9 @@
 
 		// pass encrypted package to content window.
 		console.log('encrypting : ', decrypted, 'MESSAGE : ', final);
+		require('CyphorMessageClient').emit(channelObj._id + ':send_text', {
+			text : final
+		});
 		parent.postMessage({
 			action : 'MESSAGE',
 			message : final

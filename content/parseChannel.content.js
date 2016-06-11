@@ -5,9 +5,12 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 	var activeChannelListeners = [];
 
 	function reprocessDOM() {
-		var editableElems = (document.querySelectorAll('input', 'textarea', '[contenteditable=true]') || []);
+		var editableElems = (document.querySelectorAll('input, textarea, [contenteditable=true]') || []);
 		Array.prototype.forEach.call(editableElems, function (elem) {
-			parseNodeForActiveInputs(elem);
+			var resObj = parseNodeForActiveInputs(elem);
+			if(resObj){
+				triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
+			}
 		});
 	}
 
@@ -32,8 +35,13 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 
 	function parseNodeForActiveInputs (node) {
 		// quickly query if there's any input or editable elements in the addedNode
-		var inputElems = (node.querySelectorAll)?node.querySelectorAll('input', 'textarea', '[contenteditable=true]') : [];
 		var nodeIsInput = (node.isContentEditable || node.tagName == 'INPUT' || node.tagName == 'TEXTAREA');
+		if(nodeIsInput){
+			// set node to the parentElement and default to itself if parent doesn't exist
+			node = node.parentElement || node;
+		}
+		var inputElems = (node.querySelectorAll) ? node.querySelectorAll('input, textarea, [contenteditable=true]') : [];
+
 
 		if(inputElems.length || nodeIsInput){
 			// build massive active element query string
@@ -186,7 +194,7 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 				var resObj = parseNodeForActiveInputs(addedNode);
 				if(resObj){
 					triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
-				} else if(addedNode.querySelectorAll && addedNode.querySelectorAll('input', 'textarea', '[contenteditable=true]').length){
+				} else if(addedNode.querySelectorAll && addedNode.querySelectorAll('input, textarea, [contenteditable=true]').length){
 					// account for times where elements are still being added so parsing fails to detect the configured channel as the entire DOM portion isn't inserted yet
 					setTimeout(function () {
 						var resObj = parseNodeForActiveInputs(addedNode);

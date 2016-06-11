@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -33,7 +33,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 	}
 
 	function CyphorInput(elemsObj, channelObj) {
-
+		var _this = this;
 		this.iframe = null;
 		this.channel = channelObj || null;
 		this.targetElem = elemsObj.editable_elem || null;
@@ -45,6 +45,9 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		this.listenForRecipientElemChange();
 
+		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
+			simulateInput.sendMessage(_this.targetElem, msg.text);
+		});
 	}
 
 	CyphorInput.prototype.listenForRecipientElemChange = function () {

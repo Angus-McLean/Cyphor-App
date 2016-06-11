@@ -38,7 +38,8 @@
 				"content/parseChannel.content.js",
 				"content/CyphorChannels.content.js",
 				"content/CyphorIframeLib.content.js",
-				"content/CyphorInput.content.js"
+				"content/CyphorInput.content.js",
+				"content/simulateInput.content.js"
 			],
 			"run_at": "document_start"
 		}
