@@ -129,7 +129,7 @@ define('CyphorDomLib', [], function () {
 				eleQuery += (attr.value) ? ('['+attr.name+'="'+attr.value.replace(/"/g,'\\"')+'"]') : '';
 			}
 		});
-		return (eleQuery !== '') ? elem.tagName + ' ' + eleQuery : null;
+		return (eleQuery !== '') ? elem.tagName + '' + eleQuery : null;
 	}
 
 	var nonTextElems = ['SCRIPT','INPUT','TEXTAREA', 'BODY'];
