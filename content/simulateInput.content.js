@@ -47,17 +47,28 @@ define('simulateInput', [], function () {
 
 
 	function sendMessage(elem, text) {
-		triggerTextInput(elem, text);
-		['keydown', 'keypress','keyup'].forEach(function (keyType) {
-			triggerKeyEvent(elem, {
-				type : keyType,
-				charCode : 13,
-				isTrusted: true,
-				key : 'Enter',
-				keyCode:13,
-				which:13
+		elem.style.display = '';
+		elem.focus();
+
+		//@TODO : this is sketchy and should be fixed
+		elem.CyphorInput.iframe.style.display = 'none';
+
+		setTimeout(function() {
+			triggerTextInput(elem, text);
+			['keydown', 'keypress','keyup'].forEach(function (keyType) {
+				triggerKeyEvent(elem, {
+					type : keyType,
+					charCode : 13,
+					isTrusted: true,
+					key : 'Enter',
+					keyCode:13,
+					which:13
+				});
 			});
-		});
+			elem.style.display = 'none';
+			elem.CyphorInput.iframe.style.display = '';
+			elem.CyphorInput.iframe.focus();
+		}, 10);
 	}
 
 	return {

@@ -49,6 +49,7 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 
 			for(var i in indexChannel.channels.index.selectors.editable){
 				for(var j in indexChannel.channels.index.selectors.editable[i]){
+					if(i == 'id') continue;
 					queryStr += j + ', ';
 				}
 			}
