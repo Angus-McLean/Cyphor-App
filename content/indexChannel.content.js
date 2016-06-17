@@ -73,6 +73,8 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 			channelObj.channel_paths = channelObj.channel_paths.split('\t');
 		}
 
+		//@TODO : this results in pushing duplicates of a channel everytime it is updated..
+		// 		Change this so that it indexes references by id and then just push eg {<chanId> : {channelDoc}}
 		if(channels.index.relative[pathString]){
 			channels.index.relative[pathString].push(channelObj);
 		} else {
@@ -97,7 +99,7 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 	msgCli.on(window.location.host + ':change', function (doc) {
 		// doc was inserted or changed.. index the new / changed channel
 		handleIndexing(doc);
-		
+
 		// parseDOMForActiveChannels is triggered on this event in the observeChannel module
 	});
 

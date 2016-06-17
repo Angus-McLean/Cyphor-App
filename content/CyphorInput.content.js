@@ -8,7 +8,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 	function handleNewChannelParsed(elemsObj, channelObj) {
 		var targetElem = elemsObj.editable_elem || elemsObj;			//@TEMP : just so createIframe is backwards compatible (ie elemsObj is now an object.. used to be just an element)
-		if(targetElem.CyphorInput){
+		if(targetElem.CyphorInput || !channelObj.active){
 			return;
 		}
 
@@ -47,6 +47,13 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
 			simulateInput.sendMessage(_this.targetElem, msg.text);
+		});
+
+		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
+			console.log(arguments);
+			if(!msg.active) {
+				_this.takeout();
+			}
 		});
 	}
 
@@ -89,6 +96,8 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		CyphorObserver.removeListener('remove', this.iframe);
 		CyphorObserver.removeListener('remove', this.targetElem);
 		CyphorObserver.removeListener('remove', this.recipientElem);
+
+		//@TODO : Clear up listeners on CyphorMessageClient
 
 		// take out the iframe
 		this.iframe.remove();

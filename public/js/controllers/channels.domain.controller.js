@@ -14,10 +14,8 @@ angular.module('CyphorApp')
 			debounce : 1000
 		};
 
-		$scope.update = function (song) {
-			var saveObj = JSON.parse(JSON.stringify(song));
-			delete saveObj._a;
-			pouchDB.db.put(saveObj);
+		$scope.update = function (angularChannelObj) {
+			pouchDB.db.put(angularChannelObj.doc);
 		};
 
 	}]);

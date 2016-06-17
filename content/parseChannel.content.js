@@ -125,7 +125,7 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 			if(recipElem){
 				var recipName = recipElem.innerText;
 				var savedChannel = channelObjIndex[i].filter(function (chanObj) {
-					return chanObj.channel_name == recipName;
+					return chanObj.active && chanObj.channel_name == recipName;
 				});
 				if(savedChannel && savedChannel.length){
 					return {
@@ -153,7 +153,7 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 		for(var i in channelObjIndex){
 
 			var recipChannels = channelObjIndex[i].filter(function (chanObj) {
-				return chanObj.channel_name == recipient_node.innerText;
+				return chanObj.active && chanObj.channel_name == recipient_node.innerText;
 			});
 			// there are channels that exist with that recipient name
 			if(recipChannels.length){
