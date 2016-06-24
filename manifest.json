@@ -25,6 +25,7 @@
 			"matches": ["http://*/*", "https://*/*"],
 			"js": [
 				"content/injectInterceptor.content.js",
+				"lib/bower_components/lodash/dist/lodash.min.js",
 				"lib/bower_components/requirejs/require.min.js",
 				"lib/ChromeConnect.js",
 				"lib/bower_components/cryptojs/crypto.content.js",

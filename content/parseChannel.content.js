@@ -123,17 +123,14 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 			var channel_path_arr = i.split('\t');
 			recipElem = CyphorDomLib.traversePath(start_node, channel_path_arr, true);
 			if(recipElem){
-				var recipName = recipElem.innerText;
-				var savedChannel = channelObjIndex[i].filter(function (chanObj) {
-					return chanObj.active && chanObj.channel_name == recipName;
-				});
-				if(savedChannel && savedChannel.length){
+				var savedChannel = _.find(channelObjIndex[i], {active : true, channel_name : recipElem.innerText});
+				if(savedChannel){
 					return {
 						elemsObj : {
 							editable_elem : start_node,
 							recipient_elem : recipElem
 						},
-						channel : savedChannel[0]
+						channel : savedChannel
 					};
 				}
 			}
@@ -152,28 +149,22 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 		// iterate all channels
 		for(var i in channelObjIndex){
 
-			var recipChannels = channelObjIndex[i].filter(function (chanObj) {
-				return chanObj.active && chanObj.channel_name == recipient_node.innerText;
-			});
+			var recipChannels = _.filter(channelObjIndex[i], {active : true, channel_name : recipient_node.innerText});
 			// there are channels that exist with that recipient name
-			if(recipChannels.length){
+			recipChannels.forEach(function (chan) {
+				var editable_elem = CyphorDomLib.traversePath(recipient_node, chan.paths.recipient_editable, true);
 
-				recipChannels.forEach(function (chan) {
-					var editable_elem = CyphorDomLib.traversePath(recipient_node, chan.paths.recipient_editable, true);
-
-					// validate that the destination element is a valid input element
-					if(editable_elem && (editable_elem.isContentEditable || editable_elem.tagName == 'INPUT' || editable_elem.tagName == 'TEXTAREA')){
-						finalChannel.push({
-							elementsObj : {
-								editable_elem : editable_elem,
-								recipient_elem : recipient_node
-							},
-							channel : chan
-						});
-					}
-				});
-
-			}
+				// validate that the destination element is a valid input element
+				if(editable_elem && (editable_elem.isContentEditable || editable_elem.tagName == 'INPUT' || editable_elem.tagName == 'TEXTAREA')){
+					finalChannel.push({
+						elementsObj : {
+							editable_elem : editable_elem,
+							recipient_elem : recipient_node
+						},
+						channel : chan
+					});
+				}
+			});
 		}
 
 		if(finalChannel.length == 1){

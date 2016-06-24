@@ -51,16 +51,10 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 				pathString = pathObj[i].join('\t');
 			} else {
 				pathString = pathObj[i];
-				//pathObj[i] = pathObj[i].split('\t');			//@TODO : try taking this line out some time
 			}
 
 			destinationObj[i] = destinationObj[i] || {};
-
-			if(destinationObj[i][pathString]){
-				destinationObj[i][pathString].push(valToPush);
-			} else {
-				destinationObj[i][pathString] = [valToPush];
-			}
+			(destinationObj[i][pathString] = destinationObj[i][pathString] || {})[valToPush.channel_id] = valToPush;
 		}
 	}
 
@@ -73,13 +67,7 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 			channelObj.channel_paths = channelObj.channel_paths.split('\t');
 		}
 
-		//@TODO : this results in pushing duplicates of a channel everytime it is updated..
-		// 		Change this so that it indexes references by id and then just push eg {<chanId> : {channelDoc}}
-		if(channels.index.relative[pathString]){
-			channels.index.relative[pathString].push(channelObj);
-		} else {
-			channels.index.relative[pathString] = [channelObj];
-		}
+		(channels.index.relative[pathString] = channels.index.relative[pathString] || {})[channelObj.channel_id] = channelObj;
 	}
 
 	// indexes channels for current page on load
