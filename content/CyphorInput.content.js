@@ -184,7 +184,6 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		});
 
 		function preventUser (eve) {
-
 			eve.preventDefault();
 			eve.stopPropagation();
 			return false;
