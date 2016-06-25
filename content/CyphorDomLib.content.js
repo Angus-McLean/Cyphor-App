@@ -115,7 +115,7 @@ define('CyphorDomLib', [], function () {
 		var eleQuery = '';
 		// account for element being of type node and has no attributes property
 		eleQuery += (elem.attributes && elem.attributes.class && elem.attributes.class.value) ? '.'+elem.attributes.class.value.split(' ').join('.') : '';
-		return (eleQuery !== '') ? elem.tagName + ' ' + eleQuery : null;
+		return (eleQuery !== '') ? elem.tagName + '' + eleQuery : null;
 	}
 
 	function getAttrSelector (elem) {

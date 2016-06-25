@@ -13,3 +13,13 @@ h2,
 p {
 	color: white;
 }
+
+
+/*
+	Fixes to Angular Material CSS
+*/
+
+.tight > .md-errors-spacer {
+	min-height: 0px;
+	min-width: 0px;
+}

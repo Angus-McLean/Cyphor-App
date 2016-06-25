@@ -49,6 +49,10 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 			simulateInput.sendMessage(_this.targetElem, msg.text);
 		});
 
+		CyphorMessageClient.on(this.channel._id + ':configure_button', function () {
+			_this.configureSendButton();
+		});
+
 		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
 			console.log(arguments);
 			if(!msg.active) {
@@ -161,38 +165,29 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		buttonElem.addEventInterceptor('mousedown', function (eve) {
 
-			// if the CyphorInput is busy inputting text, don't intercept the event
-			if(!_self.isTyping){
-				_self.isTyping = true;
-				_self.iframe.style.display = 'none';
-				_self.targetElem.style.display = '';
+			// send submit message
+			var submitButtonClickMsg = {
+				action : 'SUBMIT_BUTTON',
+				eventCoords : {
+					x : eve.offsetX,
+					y : eve.offsetY
+				},
+				buttonCoords : getCoords(eve.target),
+				inputCoords : getCoords(_self.targetElem)
+			};
+			_self.iframe.contentWindow.postMessage(submitButtonClickMsg, '*');
 
-				// send submit message
-				var submitButtonClickMsg = {
-					action : 'SUBMIT_BUTTON',
-					eventCoords : {
-						x : eve.offsetX,
-						y : eve.offsetY
-					},
-					buttonCoords : getCoords(eve.target),
-					inputCoords : getCoords(_self.targetElem)
-				};
-				_self.iframe.contentWindow.postMessage(submitButtonClickMsg, '*');
-
-				// prevent the event from passing
-				eve.preventDefault();
-				eve.stopPropagation();
-				return false;
-			}
+			// prevent the event from passing
+			eve.preventDefault();
+			eve.stopPropagation();
+			return false;
 		});
 
 		function preventUser (eve) {
-			// checks if its the chrome extension is typing
-			if(!_self.isTyping){
-				eve.preventDefault();
-				eve.stopPropagation();
-				return false;
-			}
+
+			eve.preventDefault();
+			eve.stopPropagation();
+			return false;
 		}
 
 		// prevent user click from passing through
