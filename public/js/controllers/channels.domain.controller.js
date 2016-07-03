@@ -20,7 +20,7 @@ angular.module('CyphorApp')
 
 		self.configureSendButton = function (channelObj) {
 			console.log('configureSendButton', channelObj);
-			CyphorMessageClient.emit(channelObj.channel_id + ':configure_button', channelObj.doc);
+			CyphorMessageClient.emit(channelObj.doc.channel_id + ':configure_button', channelObj.doc);
 		};
 
 	}]);

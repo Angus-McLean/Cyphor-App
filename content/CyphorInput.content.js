@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'DomUILib'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, DomUILib) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -163,43 +163,53 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		var _self = this;
 		_self.sendButton = buttonElem;
 
-		buttonElem.addEventInterceptor('mousedown', function (eve) {
 
-			// send submit message
-			var submitButtonClickMsg = {
-				action : 'SUBMIT_BUTTON',
-				eventCoords : {
-					x : eve.offsetX,
-					y : eve.offsetY
-				},
-				buttonCoords : getCoords(eve.target),
-				inputCoords : getCoords(_self.targetElem)
-			};
-			_self.iframe.contentWindow.postMessage(submitButtonClickMsg, '*');
 
-			// prevent the event from passing
-			eve.preventDefault();
-			eve.stopPropagation();
-			return false;
+		CyphorMessageClient.on(_self.channel._id + ':button_click', function (event) {
+			CyphorMessageClient.request(_self.channel._id + ':request_text').then(function (encMsg) {
+				simulateInput.sendMessage(_self.targetElem, encMsg.text);
+				setTimeout(simulateInput.sendMouseEvent.bind(null, _self.sendButton, event),100);
+				//simulateInput.proxyMouseEventPastIframe(_self.sendButton, event);
+
+				//@TODO : proxy the click event here...
+			});
 		});
+
+		CyphorIframeLib.insertButtonFrame(buttonElem, _self.channel);
+
+		// var mouseSems = {
+		// 	mousedown : null,
+		// 	mouseup : null,
+		// 	click : null
+		// };
+
+		// var resetSem = _.debounce(_.forEach.bind(_,mouseSems,(v,p)=>mouseSems[p] = null), 500);
+		//
+		// Object.keys(mouseSems).forEach(function (val, key) {
+		// 	buttonElem.addEventInterceptor(key, function (eve) {
+		// 		// only interrupts the first event (ie the user inputted event. Lets the simulated event pass through)
+		// 		if(mouseSems[key] = !mouseSems[key]) {
+		// 			simulateInput.proxyMouseEvent(eve);
+		// 			return preventUser(eve);
+		// 		}
+		// 	});
+		// });
 
 		function preventUser (eve) {
 			eve.preventDefault();
 			eve.stopPropagation();
 			return false;
 		}
-
-		// prevent user click from passing through
-		buttonElem.addEventInterceptor('mouseup', preventUser);
-		buttonElem.addEventInterceptor('click', preventUser);
 	};
 
 	CyphorInput.prototype.configureSendButton = function () {
 		var _CyphorInputContext = this;
+
 		function clickFn (eve) {
 			console.log('captured click');
 			_CyphorInputContext.addSendButton(eve.target);
 
+			DomUILib.removeGreyOverlay();
 			window.removeEventListener('mousedown', clickFn, true);
 			window.removeEventListener('mouseup', prevent, true);
 			window.removeEventListener('click', prevent, true);
@@ -208,7 +218,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 			eve.preventDefault();
 			return false;
 		}
-
+		DomUILib.addGreyOverlay();
 		window.addEventListener('mousedown', clickFn, true);
 		window.addEventListener('mouseup', prevent, true);
 		window.addEventListener('click', prevent, true);

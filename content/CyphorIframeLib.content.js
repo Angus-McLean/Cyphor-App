@@ -65,8 +65,53 @@ define('CyphorIframeLib', [], function () {
 		return iframe;
 	}
 
+	function insertButtonFrame (siblingElem, channelObj) {
+
+		var iframe = document.createElement('iframe');
+
+		iframe.allowtransparency = 'true';
+		iframe.frameborder = '0';
+
+		//iframe.style["background-color"] = "rgba(0, 0, 255, 0.42)";
+		iframe.style["z-index"] = "1000";
+		iframe.style.position = "absolute";
+		iframe.style.height = "100%";
+		iframe.style.width = "100%";
+		iframe.style.overflow = "hidden";
+		iframe.style.border = "0px none transparent";
+		iframe.style.top = "0px";
+		iframe.style.left = "0px";
+
+		iframe.src = chrome.runtime.getURL('/iframe/button.iframe.html');
+
+		siblingElem.parentElement.appendChild(iframe);
+
+		iframe.onload = function () {
+			// send channel object to iframe
+			iframe.contentWindow.postMessage({
+				action:'CHANNEL',
+				channel:channelObj || null
+			}, '*');
+		};
+
+		return iframe;
+	}
+
+	function getElemBelowIframe(x, y) {
+		var elem = document.elementFromPoint(x, y);
+		if(elem.nodeName === "IFRAME" && elem.src && elem.src.match(new RegExp('chrome\-extension:\/\/' + chrome.runtime.id))){
+			var orig = elem.style.pointerEvents;
+			elem.style.pointerEvents = "none";
+			var ret = document.elementFromPoint(x, y);
+			elem.style.pointerEvents = orig;
+			return ret;
+		}
+	}
+
 	return {
-		insertIframe : insertIframe
+		insertIframe : insertIframe,
+		insertButtonFrame : insertButtonFrame,
+		getElemBelowIframe : getElemBelowIframe
 	};
 
 });

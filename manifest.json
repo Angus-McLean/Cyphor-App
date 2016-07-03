@@ -32,6 +32,7 @@
 				"content/index.content.js",
 				"content/decrypt.content.js",
 				"content/interceptor.content.js",
+				"content/DomUILib.content.js",
 				"content/CyphorDomLib.content.js",
 				"content/CyphorObserver.content.js",
 				"content/buildChannel.content.js",
@@ -50,6 +51,7 @@
 	],
 	"web_accessible_resources": [
 		"/iframe/div.iframe.html",
+		"/iframe/button.iframe.html",
 		"/injectables/EventInterceptor.injectable.js"
 	],
 	"browser_action": {
