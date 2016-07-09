@@ -87,7 +87,7 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 	}
 
 	function sendMessage(elem, text) {
-		elem.style.display = '';
+		//elem.style.display = '';
 		elem.focus();
 
 		//@TODO : this is sketchy and should be fixed
@@ -95,19 +95,24 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 
 		setTimeout(function() {
 			triggerTextInput(elem, text);
-			['keydown', 'keypress','keyup'].forEach(function (keyType) {
-				triggerKeyEvent(elem, {
-					type : keyType,
-					charCode : 13,
-					isTrusted: true,
-					key : 'Enter',
-					keyCode:13,
-					which:13
-				});
+			['keydown', 'keypress','keyup'].forEach(function (keyType, ind) {
+				setTimeout(function () {
+					triggerKeyEvent(elem, {
+						type : keyType,
+						charCode : 13,
+						isTrusted: true,
+						key : 'Enter',
+						keyCode:13,
+						which:13
+					});
+				}, ind * 15);
 			});
-			elem.style.display = 'none';
-			elem.CyphorInput.iframe.style.display = '';
-			elem.CyphorInput.iframe.focus();
+			//elem.style.display = 'none';
+
+			setTimeout(function () {
+				elem.CyphorInput.iframe.focus();
+				elem.CyphorInput.iframe.style.display = '';
+			},10);
 		}, 10);
 	}
 

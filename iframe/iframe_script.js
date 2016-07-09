@@ -175,7 +175,7 @@
 
 		target.style.background = 'transparent';
 		target.id = "cyphor-input";
-		target.style.display = 'block';
+		//target.style.display = 'block';
 		if(msg.target.type != 'textarea' && msg.target.type != 'input'){
 			target.setAttribute("contentEditable", true);
 		}
