@@ -1,1 +1,15 @@
-bugreport
+<div ng-cloak flex layout="column">
+	<md-content flex layout="column">
+		<md-tabs md-border-bottom md-selected="activeTab" flex>
+			<md-tab style="height:100%;" label="1. General">
+				<div ng-include="'/public/views/feedback/bugreport/general.template.html'"></div>
+			</md-tab>
+			<md-tab style="height:100%;" label="2. Details">
+				<div ng-include="'/public/views/feedback/bugreport/details.template.html'"></div>
+			</md-tab>
+			<md-tab style="height:100%;" label="3. Finalize">
+				<div ng-include="'/public/views/feedback/bugreport/finalize.template.html'"></div>
+			</md-tab>
+		</md-tabs>
+	</md-content>
+</div>

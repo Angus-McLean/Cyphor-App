@@ -1,0 +1,32 @@
+<md-content class="md-padding" layout-padding layout="column">
+
+	<div layout="row" layout-align="center space-between" layout-margin>
+		<md-input-container class="md-warn tight" flex=50>
+			<label>Subject</label>
+			<input ng-model="bugreport.subject">
+		</md-input-container>
+		<md-input-container class="md-warn tight" flex=25>
+			<label>Type</label>
+			<md-select ng-model="bugreport.type">
+				<md-option ng-repeat="type in ::types" value="{{type.val}}">{{type.name}}</md-option>
+			</md-select>
+		</md-input-container>
+		<md-input-container class="md-warn tight" flex=15>
+			<label>Severity</label>
+			<md-select ng-model="bugreport.severity">
+				<md-option ng-repeat="val in ::[1,2,3,4,5]" value="{{val}}">{{val}}</md-option>
+			</md-select>
+		</md-input-container>
+	</div>
+	<div layout="row" layout-align="center space-between">
+		<md-input-container class="md-block md-warn tight" flex=90>
+			<label>Description</label>
+			<textarea class="longtext" ng-model="bugreport.text" style="height:100px;"></textarea>
+		</md-input-container>
+	</div>
+	<div layout="row" layout-align="center">
+		<div flex=90 layout-align="end center" layout="row">
+			<md-button class="md-warn md-raised" ng-click="goToTab(1)">Next</md-button>
+		</div>
+	</div>
+</md-content>
