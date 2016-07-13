@@ -46,6 +46,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.listenForRecipientElemChange();
 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
+			if(_this.isDestroyed) return;
 			simulateInput.sendMessage(_this.targetElem, msg.text);
 		});
 
@@ -107,9 +108,9 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.iframe.remove();
 
 		// reset display of original element
-		if(this.targetElem.style && this.targetElem.style.display == 'none'){
-			this.targetElem.style.display = this.targetElem.originalDisplay;
-		}
+		// if(this.targetElem.style && this.targetElem.style.display == 'none'){
+		// 	this.targetElem.style.display = this.targetElem.originalDisplay;
+		// }
 
 		// clear up memory
 		this.destroy();
@@ -118,9 +119,12 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 	// clean up access to prevent memory leaks
 	CyphorInput.prototype.destroy = function() {
 		//CyphorObserver.removeObserver(this.iframe);
+		this.isDestroyed = true;
 
 		delete this.targetElem.CyphorInput;
 		delete this.iframe.CyphorInput;
+
+		CyphorInputsList.splice(CyphorInputsList.indexOf(this), 1);
 	};
 
 	// requires that this object has its targetElem and channel object configured

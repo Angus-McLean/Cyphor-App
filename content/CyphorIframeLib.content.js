@@ -3,6 +3,22 @@ define('CyphorIframeLib', [], function () {
 
 	console.log('CyphorIframeLib.content.js', arguments);
 
+	function getZIndex (e) {
+		var z = window.document.defaultView.getComputedStyle(e).getPropertyValue('z-index');
+		if (isNaN(z)) return getZIndex(e.parentNode);
+		return z;
+	}
+
+	function mapOverProperties(dest, destProps, orig, origProps) {
+		dest = dest || {};
+		destProps = destProps || origProps;
+		if(!orig || !Array.isArray(origProps)) throw 'invalid mapOverProperties parameters';
+		return _.reduce(origProps, function (prop, ind) {
+			dest[destProps[ind]] = orig[prop];
+			return dest;
+		}, dest);
+	}
+
 	function insertIframe (siblingElem, channelObj) {
 
 		var parStyle = window.getComputedStyle(siblingElem.parentElement);
@@ -33,8 +49,14 @@ define('CyphorIframeLib', [], function () {
 		iframe.allowtransparency = "true";
 		iframe.frameborder = "0";
 		iframe.scrolling = "no";
-		iframe.style.width = targetStyleJSON.width;
-		iframe.style.height = targetStyleJSON.height;
+
+		iframe.style["z-index"] = getZIndex(siblingElem) + 1;
+		iframe.style.backgroundColor = parStyle.backgroundColor;
+		iframe.style.position = "absolute";
+		iframe.style.height = "100%";
+		iframe.style.width = "100%";
+		iframe.style.top = parStyle.paddingTop;
+		iframe.style.left = parStyle.paddingLeft;
 		iframe.style.overflow = "hidden";
 		iframe.style.border = "0px none transparent";
 		iframe.style.padding = "0px";
@@ -59,8 +81,8 @@ define('CyphorIframeLib', [], function () {
 				iframe.contentWindow.focus();
 			}
 		};
-		siblingElem.originalDisplay = (siblingElem.style) ? siblingElem.style.display : '';
-		siblingElem.style.display = 'none';
+		//siblingElem.originalDisplay = (siblingElem.style) ? siblingElem.style.display : '';
+		//siblingElem.style.display = 'none';
 
 		return iframe;
 	}

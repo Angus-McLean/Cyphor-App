@@ -6,7 +6,7 @@ require(['CyphorDomLib'], function (CyphorDomLib) {
 		var elem = CyphorDomLib.getBaseTextNode(node, encryptedMessageRegex);
 
 		// account for possibility of multiple encrypted messages in this mutation record
-		while(elem){
+		while(elem && !elem.isContentEditable){
 			var val, decryptedMessage;
 
 			if(elem.textContent){

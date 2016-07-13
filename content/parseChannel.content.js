@@ -4,8 +4,9 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 
 	var activeChannelListeners = [];
 
-	function reprocessDOM() {
-		var editableElems = (document.querySelectorAll('input, textarea, [contenteditable=true]') || []);
+	function reprocessDOM(parent) {
+		var elem = (parent && parent.querySelectorAll && parent) || document;
+		var editableElems = (elem.querySelectorAll('input, textarea, [contenteditable=true]') || []);
 		Array.prototype.forEach.call(editableElems, function (elem) {
 			var resObj = parseNodeForActiveInputs(elem);
 			if(resObj){
@@ -181,25 +182,25 @@ define('parseChannel', ['indexChannel', 'CyphorDomLib'], function (indexChannel,
 	var inputInsertion = new MutationObserver(function(mutations){
 		mutations.forEach(function (mut) {
 			Array.prototype.forEach.call(mut.addedNodes, function (addedNode) {
-
+				return reprocessDOM(addedNode);
 				// check by input elements
-				var resObj = parseNodeForActiveInputs(addedNode);
-				if(resObj){
-					triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
-				} else if(addedNode.querySelectorAll && addedNode.querySelectorAll('input, textarea, [contenteditable=true]').length){
-					// account for times where elements are still being added so parsing fails to detect the configured channel as the entire DOM portion isn't inserted yet
-					setTimeout(function () {
-						var resObj = parseNodeForActiveInputs(addedNode);
-						if(resObj){
-							triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
-						}
-					}, 10);
-				}
-				// check by possible recipient elements
-				var recipObj = parseNodeForActiveRecipients(addedNode);
-				if(recipObj){
-					triggerNewActiveChannel(recipObj.elementsObj, recipObj.channel);
-				}
+				// var resObj = parseNodeForActiveInputs(addedNode);
+				// if(resObj){
+				// 	triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
+				// } else if(addedNode.querySelectorAll && addedNode.querySelectorAll('input, textarea, [contenteditable=true]').length){
+				// 	// account for times where elements are still being added so parsing fails to detect the configured channel as the entire DOM portion isn't inserted yet
+				// 	setTimeout(function () {
+				// 		var resObj = parseNodeForActiveInputs(addedNode);
+				// 		if(resObj){
+				// 			triggerNewActiveChannel(resObj.elementsObj, resObj.channel);
+				// 		}
+				// 	}, 10);
+				// }
+				// // check by possible recipient elements
+				// var recipObj = parseNodeForActiveRecipients(addedNode);
+				// if(recipObj){
+				// 	triggerNewActiveChannel(recipObj.elementsObj, recipObj.channel);
+				// }
 
 			});
 		});
