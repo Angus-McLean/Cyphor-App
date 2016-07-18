@@ -90,13 +90,13 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 		//elem.style.display = '';
 		elem.focus();
 
-		//@TODO : this is sketchy and should be fixed
+		//@NOTE : Gmail will have some script error if this is does not happen.
 		elem.CyphorInput.iframe.style.display = 'none';
 
 		setTimeout(function() {
 			triggerTextInput(elem, text);
-			['keydown', 'keypress','keyup'].forEach(function (keyType, ind) {
-				setTimeout(function () {
+			setTimeout(function () {
+				['keydown', 'keypress','keyup'].forEach(function (keyType, ind) {
 					triggerKeyEvent(elem, {
 						type : keyType,
 						charCode : 13,
@@ -105,15 +105,14 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 						keyCode:13,
 						which:13
 					});
-				}, ind * 15);
-			});
-			//elem.style.display = 'none';
+				});
+			}, 5);
 
 			setTimeout(function () {
 				elem.CyphorInput.iframe.focus();
 				elem.CyphorInput.iframe.style.display = '';
-			},10);
-		}, 10);
+			},5);
+		}, 5);
 	}
 
 	function proxyMouseEvent(ev) {

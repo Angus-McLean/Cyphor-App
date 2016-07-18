@@ -134,10 +134,9 @@ define('CyphorDomLib', [], function () {
 
 	var nonTextElems = ['SCRIPT','INPUT','TEXTAREA', 'BODY'];
 	function getBaseTextNode (DOM_Node,regex) {
+		var matchVal = null;
 		if(DOM_Node.textContent||DOM_Node.innerText){
-			var matchVal = (DOM_Node.textContent||DOM_Node.innerText).match(regex);
-		} else {
-			matchVal = null;
+			matchVal = (DOM_Node.textContent||DOM_Node.innerText).match(regex);
 		}
 
 		if(matchVal !== null){
