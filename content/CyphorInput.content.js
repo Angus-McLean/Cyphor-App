@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'DomUILib'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, DomUILib) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'ButtonInterceptor'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, ButtonInterceptor) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -40,6 +40,9 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.recipientElem = elemsObj.recipient_elem || null;
 		this.coords = getCoords(this.targetElem);
 
+		ButtonInterceptor.call(this, this.channel._id, elemsObj, this.channel.button);
+		//_.extend(this, new ButtonInterceptor(this.channel._id, elemsObj, this.channel.button));
+
 		// insert the iframe
 		this.insertIframe();
 
@@ -47,11 +50,16 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
 			if(_this.isDestroyed) return;
+			//_this.iframe.remove();
 			simulateInput.sendMessage(_this.targetElem, msg.text);
+
 		});
 
 		CyphorMessageClient.on(this.channel._id + ':configure_button', function () {
-			_this.configureSendButton();
+			_this.configureSendButton({
+				recipientElem : _this.recipientElem,
+				targetElem : _this.targetElem
+			});
 		});
 
 		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
@@ -62,22 +70,40 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		});
 	}
 
+	_.extend(CyphorInput.prototype, ButtonInterceptor.prototype);
+
 	CyphorInput.prototype.listenForRecipientElemChange = function () {
 		var thisCyph = this;
-		CyphorObserver.on('remove', this.recipientElem, function (mutationRecord) {
-			//@TODO : set up so that it handle characterData too
-			if(mutationRecord.type == 'childList'){
-				// element was removed or changed.. check if its a configured channel
-				var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
-				if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
-					// do nothing because its the same channel
-				} else {
-					// channel has changed.. remove the currently configured CyphorInput
-					thisCyph.takeout();
-					if(resObj) {
-						handleNewChannelParsed(resObj.elementsObj, resObj.channel);
-					}
+		CyphorObserver.on('remove', this.recipientElem, function (mutationRecord, listener) {
+			// element was removed.. check if its a configured channel
+			var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
+			if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
+				// the channel is still here.. just update elements on listeners
+				listener.target = resObj.elementsObj.recipient_elem;
+				return false;
+			} else {
+				// channel has changed.. remove the currently configured CyphorInput
+				thisCyph.takeout();
+				if(resObj) {
+					handleNewChannelParsed(resObj.elementsObj, resObj.channel);
 				}
+				return true;
+			}
+		});
+		CyphorObserver.on('change', this.recipientElem, function (mutationRecord, listener) {
+			// element was removed.. check if its a configured channel
+			var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
+			if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
+				// the channel is still here.. just update elements on listeners
+				listener.target = resObj.elementsObj.recipient_elem;
+				return false;
+			} else {
+				// channel has changed.. remove the currently configured CyphorInput
+				thisCyph.takeout();
+				if(resObj) {
+					handleNewChannelParsed(resObj.elementsObj, resObj.channel);
+				}
+				return true;
 			}
 		});
 	};
@@ -161,71 +187,6 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		// update references
 		this.targetElem.CyphorInput = this;
 		this.iframe.CyphorInput = this;
-	};
-
-	CyphorInput.prototype.addSendButton = function(buttonElem) {
-		var _self = this;
-		_self.sendButton = buttonElem;
-
-
-
-		CyphorMessageClient.on(_self.channel._id + ':button_click', function (event) {
-			CyphorMessageClient.request(_self.channel._id + ':request_text').then(function (encMsg) {
-				simulateInput.sendMessage(_self.targetElem, encMsg.text);
-				setTimeout(simulateInput.sendMouseEvent.bind(null, _self.sendButton, event),100);
-				//simulateInput.proxyMouseEventPastIframe(_self.sendButton, event);
-
-				//@TODO : proxy the click event here...
-			});
-		});
-
-		CyphorIframeLib.insertButtonFrame(buttonElem, _self.channel);
-
-		// var mouseSems = {
-		// 	mousedown : null,
-		// 	mouseup : null,
-		// 	click : null
-		// };
-
-		// var resetSem = _.debounce(_.forEach.bind(_,mouseSems,(v,p)=>mouseSems[p] = null), 500);
-		//
-		// Object.keys(mouseSems).forEach(function (val, key) {
-		// 	buttonElem.addEventInterceptor(key, function (eve) {
-		// 		// only interrupts the first event (ie the user inputted event. Lets the simulated event pass through)
-		// 		if(mouseSems[key] = !mouseSems[key]) {
-		// 			simulateInput.proxyMouseEvent(eve);
-		// 			return preventUser(eve);
-		// 		}
-		// 	});
-		// });
-
-		function preventUser (eve) {
-			eve.preventDefault();
-			eve.stopPropagation();
-			return false;
-		}
-	};
-
-	CyphorInput.prototype.configureSendButton = function () {
-		var _CyphorInputContext = this;
-
-		function clickFn (eve) {
-			console.log('captured click');
-			_CyphorInputContext.addSendButton(eve.target);
-
-			DomUILib.removeGreyOverlay();
-			window.removeEventListener('mousedown', clickFn, true);
-			window.removeEventListener('mouseup', prevent, true);
-			window.removeEventListener('click', prevent, true);
-
-			eve.stopPropagation();
-			eve.preventDefault();
-			return false;
-		}
-		DomUILib.addGreyOverlay();
-		window.addEventListener('mousedown', clickFn, true);
-		window.addEventListener('mouseup', prevent, true);
-		window.addEventListener('click', prevent, true);
 	};
 
 	return CyphorInput;
