@@ -8,6 +8,10 @@ body {
 	margin: 0px 0px 0px 0px;
 }
 
+.tight-padding {
+	padding: 0px 0px 0px 0px;
+}
+
 h1,
 h2,
 p {
@@ -32,4 +36,14 @@ p {
 	max-height: 150px !important;
 	resize: none;
 	overflow-y: scroll;
+}
+
+/*md-tabs-content-wrapper {
+	overflow: scroll !important;
+	height: 100%;
+}*/
+
+#tab-content-1 {
+  height: 100%;
+  overflow: scroll !important;
 }

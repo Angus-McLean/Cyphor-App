@@ -1,0 +1,62 @@
+<md-content class="md-padding" layout-padding layout="column" flex>
+
+	<div layout="row" layout-align="center" layout-margin>
+		<md-input-container class="md-warn tight" flex=90>
+			<label>Website URL</label>
+			<input ng-model="bugreport.website_url">
+		</md-input-container>
+	</div>
+	<div layout="row" class="tight tight-padding" layout-align="center">
+		<h3 class="tight tight-padding" flex=90>Steps to Reproduce : </h3>
+	</div>
+
+	<div layout="row" layout-align="center space-between">
+
+		<md-list flex=95>
+			<md-list-item class="md-1-line" ng-repeat="step in bugreport.steps track by $index" layout-padding>
+				<div class="md-list-step-text" flex=100 layout="row" layout-align="space-between center">
+					<!-- <div layout="row" layout-align="center center"> -->
+
+						<div flex=5 layout="column" layout-align="center center">
+							<i class="material-icons" style="color: #42dca3; cursor:pointer;" ng-click="shift($index, -1)">
+								keyboard_arrow_up
+								<md-tooltip>Move up</md-tooltip>
+							</i>
+							<!-- <h1 class="tight" style="font-color:">{{step.number}}</h1> -->
+							<i class="material-icons" style="color: #42dca3; cursor:pointer;" ng-click="shift($index, 1)">
+								keyboard_arrow_down
+								<md-tooltip>Move down</md-tooltip>
+							</i>
+						</div>
+					<!-- </div> -->
+
+					<md-input-container class="md-warn tight" flex=70>
+						<label>Step Details</label>
+						<textarea ng-model="step.notes" style="height:100px;"></textarea>
+					</md-input-container>
+					<div flex=15 layout="row">
+						<i class="material-icons" style="cursor:pointer;" ng-click="insert($index)">
+							add
+							<md-tooltip>Insert row below</md-tooltip>
+						</i>
+						<i class="material-icons" style="cursor:pointer;" ng-click="remove($index)">
+							close
+							<md-tooltip>Remove this row</md-tooltip>
+						</i>
+					</div>
+				</div>
+				<!-- <md-divider></md-divider> -->
+			</md-list-item>
+		</md-list>
+	</div>
+
+	<div class="lock-size" layout="row" layout-align="end center" style="bottom:65px;right:15px;">
+		<md-button class="md-warn md-raised" ng-click="goToTab(2)">Next</md-button>
+	</div>
+	<!--
+	<div layout="row" layout-align="center">
+		<div flex=90 layout-align="end center" layout="row">
+			<md-button class="md-warn md-raised" ng-click="goToTab(1)">Next</md-button>
+		</div>
+	</div> -->
+</md-content>

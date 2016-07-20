@@ -26,9 +26,11 @@ angular.module('CyphorApp')
 			val : 'other'
 		}];
 
-		$scope.feedback = {};
+		$scope.feedback = {
+			allow_response : true
+		};
 
 		$scope.send = function () {
 			console.log('sending feedback', $scope.feedback);
-		}
+		};
 }]);
