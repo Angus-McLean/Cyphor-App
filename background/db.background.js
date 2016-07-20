@@ -17,6 +17,9 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 		 	case "pouchdb:get":
 		 		executeGet(request, sendResponse);
 		 		break;
+			case "pouchdb:getall":
+		 		executeGetAll(request, sendResponse);
+		 		break;
 			case "pouchdb:query":
 				executeQuery(request, sendResponse);
 		 		break;
@@ -37,6 +40,14 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 			sendResponse(null);
 		}
 		db.get(requestObj._id).then(function (doc) {
+			sendResponse(doc);
+		}).catch(function (err) {
+			console.error(err);
+		});
+	}
+
+	function executeGetAll(requestObj, sendResponse) {
+		db.allDocs({include_docs: true}).then(function (doc) {
 			sendResponse(doc);
 		}).catch(function (err) {
 			console.error(err);

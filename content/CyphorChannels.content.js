@@ -1,6 +1,6 @@
 // channels.content.js
 
-define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient'], function (buildChannel, indexChannel, msgCli) {
+define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient', 'parseChannel'], function (buildChannel, indexChannel, msgCli, parseChannel) {
 
 	console.log('CyphorChannels.content.js', arguments);
 
@@ -30,6 +30,11 @@ define('CyphorChannels', ['buildChannel', 'indexChannel', 'CyphorMessageClient']
 	}
 
 	msgCli.on('parse_new_channel', saveNewChannel);
+
+	msgCli.on(window.location.host + ':change', function () {
+		// timeout so the channel can get indexed first
+		setTimeout(parseChannel.reprocessDOM, 10);
+	});
 
 	return {};
 

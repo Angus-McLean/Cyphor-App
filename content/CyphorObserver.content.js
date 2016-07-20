@@ -5,26 +5,16 @@ define('CyphorObserver', [], function () {
 	var listeners = [];
 	var index = {
 		remove : [],
-		insert : []
+		insert : [],
+		change : []
 	};
 	window.ObserverIndex = index;
 
 	function processMutation (mutRec) {
 		var _elemContext = this;
 
-		// call listeners for "removed event"
-		if(mutRec.removedNodes && mutRec.removedNodes.length){
-			Array.prototype.forEach.call(mutRec.removedNodes, function (removedNode) {
-				listeners.forEach(function (listener) {
-					if(listener.target == removedNode ||  (removedNode.contains && removedNode.contains(listener.target))){
-						listener.listener.call(listener.target, mutRec);
-					}
-				});
-			});
-		}
-
 		// call listeners for "insert" event
-		if(index.insert.length && mutRec.addedNodes && mutRec.addedNodes.length){
+		if(mutRec.type === 'childList' && index.insert.length && mutRec.addedNodes && mutRec.addedNodes.length){
 			Array.prototype.forEach.call(mutRec.addedNodes, function (addedNode) {
 				index.insert.forEach(function (listener) {
 					// check if the addedNode has value query selector or custom querying function
@@ -38,30 +28,29 @@ define('CyphorObserver', [], function () {
 		}
 
 		// call listeners for "remove" event
-		if(index.remove.length && mutRec.removedNodes && mutRec.removedNodes.length){
-
-
+		if(mutRec.type === 'childList' && index.remove.length && mutRec.removedNodes && mutRec.removedNodes.length){
 			index.remove.forEach(function (listener, ind) {
-				// check if the mutation target is the listener target... this is the case when innerText of an element changes
-				// could also use thisCyph.iframe.ownerDocument.contains(thisCyph.iframe) to see if the iframe no longer exists in the document
-				// if(listener.target == mutRec.target || (mutRec.target.contains && mutRec.target.contains(listener.target))){
-				// 	listener.listener.call(listener.target, mutRec);
-				// 	// automatically clear the remove listeners
-				// 	index.remove.splice(ind, 1);
-				// } else {
-					Array.prototype.forEach.call(mutRec.removedNodes, function (removedNode) {
-						if(listener.target == removedNode || (removedNode.contains && removedNode.contains(listener.target))){
-							listener.listener.call(listener.target, mutRec);
-							// automatically clear the remove listeners
-							index.remove.splice(ind, 1);
-						} else if(removedNode instanceof Node && removedNode.parentElement == listener.target){
-							// the value of the target element has changed.. ie removedNode is the innerText of the listener target
-							listener.listener.call(listener.target, mutRec);
-							// automatically clear the remove listeners
-							index.remove.splice(ind, 1);
-						}
-					});
-				// }
+
+				Array.prototype.forEach.call(mutRec.removedNodes, function (removedNode) {
+					//if((removedNode.textContent.toString() || removedNode.innerText.toString()).indexOf('Angus') > -1 || (mutRec.target.textContent.toString() || mutRec.target.innerText.toString()).indexOf('Angus') > -1) debugger;
+					var removeListener;
+					if(listener.target == mutRec.target || listener.target == removedNode || (removedNode.contains && removedNode.contains(listener.target))){
+						removeListener = listener.listener.call(listener.target, mutRec, listener);
+						// if the listener was called automatically clear the remove listeners
+						if(removeListener) index.remove.splice(ind, 1);
+					}
+				});
+			});
+		}
+
+		// search for characterData changes
+		if(mutRec.type === 'characterData' && index.change.length) {
+			_.filter(index.change, function (list) {
+				return list.target === mutRec.target || list.target.contains(mutRec.target);
+			}).forEach(function (list) {
+				//console.log('triggereing listener', list, mutRec);
+				var removeListener = list.listener.call(list.target, mutRec, listener);
+				if(removeListener) index.change.splice(ind, 1);
 			});
 		}
 	}
@@ -74,6 +63,7 @@ define('CyphorObserver', [], function () {
 		subtree : true,
 		childList: true,
 		attributes: true,
+		characterData: true,
 		attributeFilter: ['contenteditable']
 	};
 
@@ -83,7 +73,7 @@ define('CyphorObserver', [], function () {
 	// target is either an Element (for removals), function, or querySelectorAll string (for insert)
 	function on (eventName, target, fn) {
 		// validate parameters
-		if(Object.keys(index).indexOf(eventName) == -1 || (!target || (typeof target != 'string' && !(target instanceof Element) && typeof target != 'function')) || typeof fn != 'function'){
+		if(Object.keys(index).indexOf(eventName) == -1 || (!target || (typeof target != 'string' && !(target instanceof Node) && typeof target != 'function')) || typeof fn != 'function'){
 			console.error('invalid parameters for cyphor mutation event listener', arguments);
 		}
 

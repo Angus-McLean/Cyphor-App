@@ -51,16 +51,10 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 				pathString = pathObj[i].join('\t');
 			} else {
 				pathString = pathObj[i];
-				//pathObj[i] = pathObj[i].split('\t');			//@TODO : try taking this line out some time
 			}
 
 			destinationObj[i] = destinationObj[i] || {};
-
-			if(destinationObj[i][pathString]){
-				destinationObj[i][pathString].push(valToPush);
-			} else {
-				destinationObj[i][pathString] = [valToPush];
-			}
+			(destinationObj[i][pathString] = destinationObj[i][pathString] || {})[valToPush.channel_id] = valToPush;
 		}
 	}
 
@@ -73,11 +67,7 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 			channelObj.channel_paths = channelObj.channel_paths.split('\t');
 		}
 
-		if(channels.index.relative[pathString]){
-			channels.index.relative[pathString].push(channelObj);
-		} else {
-			channels.index.relative[pathString] = [channelObj];
-		}
+		(channels.index.relative[pathString] = channels.index.relative[pathString] || {})[channelObj.channel_id] = channelObj;
 	}
 
 	// indexes channels for current page on load
@@ -97,7 +87,7 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 	msgCli.on(window.location.host + ':change', function (doc) {
 		// doc was inserted or changed.. index the new / changed channel
 		handleIndexing(doc);
-		
+
 		// parseDOMForActiveChannels is triggered on this event in the observeChannel module
 	});
 

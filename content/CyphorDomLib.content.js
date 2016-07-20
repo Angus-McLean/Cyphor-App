@@ -115,7 +115,7 @@ define('CyphorDomLib', [], function () {
 		var eleQuery = '';
 		// account for element being of type node and has no attributes property
 		eleQuery += (elem.attributes && elem.attributes.class && elem.attributes.class.value) ? '.'+elem.attributes.class.value.split(' ').join('.') : '';
-		return (eleQuery !== '') ? elem.tagName + ' ' + eleQuery : null;
+		return (eleQuery !== '') ? elem.tagName + '' + eleQuery : null;
 	}
 
 	function getAttrSelector (elem) {
@@ -134,10 +134,9 @@ define('CyphorDomLib', [], function () {
 
 	var nonTextElems = ['SCRIPT','INPUT','TEXTAREA', 'BODY'];
 	function getBaseTextNode (DOM_Node,regex) {
+		var matchVal = null;
 		if(DOM_Node.textContent||DOM_Node.innerText){
-			var matchVal = (DOM_Node.textContent||DOM_Node.innerText).match(regex);
-		} else {
-			matchVal = null;
+			matchVal = (DOM_Node.textContent||DOM_Node.innerText).match(regex);
 		}
 
 		if(matchVal !== null){

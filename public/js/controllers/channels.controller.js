@@ -12,6 +12,8 @@ angular.module('CyphorApp')
 				event : 'parse_new_channel'
 			};
 			CyphorMessageClient.emit('route_message', {routed : routed, query : query});
+
+			window.close();
 		};
 
 		$scope.startDownload = function () {

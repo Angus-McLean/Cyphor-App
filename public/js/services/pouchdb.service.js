@@ -1,5 +1,5 @@
 angular.module('CyphorApp')
-	.service('pouchDB', ['$log', "$rootScope", "$q", "CyphorMessageClient", function ($log, $rootScope, $q, CyphorMessageClient) {
+	.service('pouchDB', ['$log', "$rootScope", "$q", "CyphorMessageClient", "pouchDBShim", function ($log, $rootScope, $q, CyphorMessageClient, pouchDBShim) {
 
 		var urlRegex = new RegExp('^(.*:)//([A-Za-z0-9\-\.]+)(:[0-9]+)?(.*)$');
 		var index = {};
@@ -13,21 +13,33 @@ angular.module('CyphorApp')
 
 		function processDoc(newDoc) {
 			// update index :
-			index[newDoc._id] = newDoc;
+			if(!index[newDoc._id]) {
+				var newObj = {
+					doc : newDoc
+				};
+				index[newDoc._id] = newObj;
+				data['*'].push(newObj);
 
-			// update data
-			['*', newDoc.origin_url].forEach(function (orig) {
-				data[orig] = (data[orig] || []).filter(function (oldDoc) {
-					return oldDoc._id !== newDoc._id;
-				});
-				data[orig].push(newDoc);
-			});
+				if(!data[newDoc.origin_url]){
+					data[newDoc.origin_url] = [];
+				}
+				data[newDoc.origin_url].push(newObj);
+			} else {
+				index[newDoc._id].doc = newDoc;
+			}
 		}
 
 		function getByOrigin(queriedOrigin) {
 			var msgObj = {
 				action : 'pouchdb:query',
 				query : {origin_url : queriedOrigin}
+			};
+			return sendChromeRuntime(msgObj);
+		}
+
+		function getAll() {
+			var msgObj = {
+				action : 'pouchdb:getall',
 			};
 			return sendChromeRuntime(msgObj);
 		}
@@ -41,22 +53,32 @@ angular.module('CyphorApp')
 		}
 
 		// query for initial data
-		chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-			if(tabs && tabs.length){
-				var urlParsed = urlRegex.exec(tabs[0].url);
-				if(urlParsed){
-					getByOrigin(urlParsed[2]).then(function (resp) {
-						resp.rows.forEach(function (row) {
-							processDoc(row.key);
-						});
-					});
-				}
-			}
+		getAll().then(function (resp) {
+			resp.rows.forEach(function (row) {
+				processDoc(row.doc);
+			});
 		});
+
+
+		// chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+		// 	if(tabs && tabs.length){
+		// 		var urlParsed = urlRegex.exec(tabs[0].url);
+		// 		if(urlParsed){
+		// 			getByOrigin(urlParsed[2]).then(function (resp) {
+		// 				resp.rows.forEach(function (row) {
+		// 					processDoc(row.key);
+		// 				});
+		// 			});
+		// 		}
+		// 	}
+		// });
+
+
 
 		var returnObj = {
 			data : data,
-			index : index
+			index : index,
+			db : pouchDBShim
 		};
 
 		return returnObj;

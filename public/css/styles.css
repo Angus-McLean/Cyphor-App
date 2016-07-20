@@ -1,6 +1,6 @@
 html,
 body {
-	height: 400px;
+	height: 450px;
 	width: 600px;
 }
 
@@ -8,8 +8,42 @@ body {
 	margin: 0px 0px 0px 0px;
 }
 
+.tight-padding {
+	padding: 0px 0px 0px 0px;
+}
+
 h1,
 h2,
 p {
 	color: white;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+/*
+	Fixes to Angular Material CSS
+*/
+
+.tight > .md-errors-spacer {
+	min-height: 0px;
+	min-width: 0px;
+}
+
+.longtext {
+	height: 150px !important;
+	max-height: 150px !important;
+	resize: none;
+	overflow-y: scroll;
+}
+
+/*md-tabs-content-wrapper {
+	overflow: scroll !important;
+	height: 100%;
+}*/
+
+#tab-content-1 {
+  height: 100%;
+  overflow: scroll !important;
 }

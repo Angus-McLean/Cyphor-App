@@ -1,5 +1,5 @@
 <md-sidenav class="md-sidenav-left md-whiteframe-z1" md-component-id="left">
-	<md-toolbar layout="row">
+	<md-toolbar layout="row" class="md-toolbar-tools">
 		<div class="md-toolbar-tools">
 			<h2>
 				<span>Navigation</span>
@@ -15,19 +15,34 @@
 				<p>Search</p>
 			</md-list-item>
 			<md-list-item ng-click='uiNavigate("channels")'>
-				<md-icon class="md-default-theme" class="material-icons">&#xE878;</md-icon>
+				<md-icon class="md-default-theme" class="material-icons">view_list</md-icon>
 				<p>Channels</p>
 			</md-list-item>
 
 			<md-divider></md-divider>
-			<md-subheader class="md-no-sticky">Settings</md-subheader>
+			<!-- <md-subheader class="md-no-sticky">Settings</md-subheader>
 			<md-list-item>
 				<md-icon class="md-default-theme" class="material-icons">&#xE7F9;</md-icon>
-				<p>Connected Accounts</p>
+				<p>Channels</p>
 			</md-list-item>
 			<md-list-item>
-				<md-icon class="md-default-theme" class="material-icons">&#xE1BC;</md-icon>
-				<p>Connected Services</p>
+				<md-icon class="md-default-theme" class="material-icons">security</md-icon>
+				<p>Security</p>
+				<div class="md-secondary"></div>
+			</md-list-item>
+			<md-list-item>
+				<md-icon class="md-default-theme" class="material-icons">enhanced_encryption</md-icon>
+				<p>Encryption</p>
+				<div class="md-secondary"></div>
+			</md-list-item> -->
+			<md-subheader class="md-no-sticky">Feedback</md-subheader>
+			<md-list-item ng-click='uiNavigate("feedback")'>
+				<md-icon class="md-default-theme" class="material-icons">feedback</md-icon>
+				<p>General Feedback</p>
+			</md-list-item>
+			<md-list-item ng-click='uiNavigate("bugreport")'>
+				<md-icon class="md-default-theme" class="material-icons">bug_report</md-icon>
+				<p>Report a Bug</p>
 				<div class="md-secondary"></div>
 			</md-list-item>
 		</md-list>

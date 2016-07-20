@@ -1,5 +1,5 @@
 angular.module('CyphorApp')
-	.controller('domainCtrl', ['$scope', 'pouchDB', '$stateParams', function($scope, pouchDB, $stateParams) {
+	.controller('domainCtrl', ['$scope', 'pouchDB', '$stateParams', 'CyphorMessageClient', function($scope, pouchDB, $stateParams, CyphorMessageClient) {
 		var self = this;
 		self.channels = pouchDB.data[$stateParams.domain];
 
@@ -14,10 +14,13 @@ angular.module('CyphorApp')
 			debounce : 1000
 		};
 
-		$scope.update = function (song) {
-			var saveObj = JSON.parse(JSON.stringify(song));
-			delete saveObj._a;
-			pouchDB.db.put(saveObj);
+		$scope.update = function (angularChannelObj) {
+			pouchDB.db.put(angularChannelObj.doc);
+		};
+
+		self.configureSendButton = function (channelObj) {
+			console.log('configureSendButton', channelObj);
+			CyphorMessageClient.emit(channelObj.doc.channel_id + ':configure_button', channelObj.doc);
 		};
 
 	}]);

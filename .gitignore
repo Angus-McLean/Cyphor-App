@@ -1,2 +1,4 @@
 public/bower_components
-lib/bower_components/pouchdb
+lib/bower_components
+dist/
+node_modules/

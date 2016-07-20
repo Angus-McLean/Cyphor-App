@@ -1,0 +1,39 @@
+<md-content class="md-padding" layout-padding layout="column">
+  <div layout="row" layout-align="center space-between">
+    <div flex=90>
+      <h1> General Feedback Form</h1>
+    </div>
+
+  </div>
+
+
+    <div layout="row" flex=80 layout-align="center space-between">
+      <md-input-container class="md-warn tight" flex=60>
+        <label>Title</label>
+        <input ng-model="feedback.title">
+      </md-input-container>
+      <md-input-container class="md-warn tight" flex=30>
+        <label>Type</label>
+        <md-select ng-model="feedback.type">
+          <md-option ng-repeat="type in ::types" value="{{type.val}}">{{type.name}}</md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div layout="row" layout-align="center space-between">
+      <md-input-container class="md-block md-warn tight" flex=90>
+        <label>Feedback</label>
+        <textarea class="longtext" ng-model="feedback.text" style="height:100px;"></textarea>
+      </md-input-container>
+    </div>
+    <div layout="row" layout-align="center">
+      <div flex=90 layout-align="space-between center" layout="row">
+
+	      <div ng-repeat="v in [0]" layout-align="center center">
+	        <md-checkbox class="md-warn tight" ng-model="feedback.allow_response" aria-label="Expiry ">
+	          Let Cyphor follow up with you about this
+	        </md-checkbox>
+	      </div>
+	      <md-button class="md-warn md-raised" ng-click="send()">Submit</md-button>
+	    </div>
+    </div>
+</md-content>

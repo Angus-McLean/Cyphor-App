@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'ButtonInterceptor'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, ButtonInterceptor) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -8,7 +8,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 	function handleNewChannelParsed(elemsObj, channelObj) {
 		var targetElem = elemsObj.editable_elem || elemsObj;			//@TEMP : just so createIframe is backwards compatible (ie elemsObj is now an object.. used to be just an element)
-		if(targetElem.CyphorInput){
+		if(targetElem.CyphorInput || !channelObj.active){
 			return;
 		}
 
@@ -40,32 +40,70 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.recipientElem = elemsObj.recipient_elem || null;
 		this.coords = getCoords(this.targetElem);
 
+		ButtonInterceptor.call(this, this.channel._id, elemsObj, this.channel.button);
+		//_.extend(this, new ButtonInterceptor(this.channel._id, elemsObj, this.channel.button));
+
 		// insert the iframe
 		this.insertIframe();
 
 		this.listenForRecipientElemChange();
 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
+			if(_this.isDestroyed) return;
+			//_this.iframe.remove();
 			simulateInput.sendMessage(_this.targetElem, msg.text);
+
+		});
+
+		CyphorMessageClient.on(this.channel._id + ':configure_button', function () {
+			_this.configureSendButton({
+				recipientElem : _this.recipientElem,
+				targetElem : _this.targetElem
+			});
+		});
+
+		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
+			console.log(arguments);
+			if(!msg.active) {
+				_this.takeout();
+			}
 		});
 	}
 
+	_.extend(CyphorInput.prototype, ButtonInterceptor.prototype);
+
 	CyphorInput.prototype.listenForRecipientElemChange = function () {
 		var thisCyph = this;
-		CyphorObserver.on('remove', this.recipientElem, function (mutationRecord) {
-			//@TODO : set up so that it handle characterData too
-			if(mutationRecord.type == 'childList'){
-				// element was removed or changed.. check if its a configured channel
-				var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
-				if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
-					// do nothing because its the same channel
-				} else {
-					// channel has changed.. remove the currently configured CyphorInput
-					thisCyph.takeout();
-					if(resObj) {
-						handleNewChannelParsed(resObj.elementsObj, resObj.channel);
-					}
+		CyphorObserver.on('remove', this.recipientElem, function (mutationRecord, listener) {
+			// element was removed.. check if its a configured channel
+			var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
+			if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
+				// the channel is still here.. just update elements on listeners
+				listener.target = resObj.elementsObj.recipient_elem;
+				return false;
+			} else {
+				// channel has changed.. remove the currently configured CyphorInput
+				thisCyph.takeout();
+				if(resObj) {
+					handleNewChannelParsed(resObj.elementsObj, resObj.channel);
 				}
+				return true;
+			}
+		});
+		CyphorObserver.on('change', this.recipientElem, function (mutationRecord, listener) {
+			// element was removed.. check if its a configured channel
+			var resObj = parseChannel.parseNodeForActiveInputs(thisCyph.targetElem);
+			if(resObj && resObj.elementsObj.editable_elem == thisCyph.targetElem && resObj.channel ==  thisCyph.channel){
+				// the channel is still here.. just update elements on listeners
+				listener.target = resObj.elementsObj.recipient_elem;
+				return false;
+			} else {
+				// channel has changed.. remove the currently configured CyphorInput
+				thisCyph.takeout();
+				if(resObj) {
+					handleNewChannelParsed(resObj.elementsObj, resObj.channel);
+				}
+				return true;
 			}
 		});
 	};
@@ -90,13 +128,15 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		CyphorObserver.removeListener('remove', this.targetElem);
 		CyphorObserver.removeListener('remove', this.recipientElem);
 
+		//@TODO : Clear up listeners on CyphorMessageClient
+
 		// take out the iframe
 		this.iframe.remove();
 
 		// reset display of original element
-		if(this.targetElem.style && this.targetElem.style.display == 'none'){
-			this.targetElem.style.display = this.targetElem.originalDisplay;
-		}
+		// if(this.targetElem.style && this.targetElem.style.display == 'none'){
+		// 	this.targetElem.style.display = this.targetElem.originalDisplay;
+		// }
 
 		// clear up memory
 		this.destroy();
@@ -105,9 +145,12 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 	// clean up access to prevent memory leaks
 	CyphorInput.prototype.destroy = function() {
 		//CyphorObserver.removeObserver(this.iframe);
+		this.isDestroyed = true;
 
 		delete this.targetElem.CyphorInput;
 		delete this.iframe.CyphorInput;
+
+		CyphorInputsList.splice(CyphorInputsList.indexOf(this), 1);
 	};
 
 	// requires that this object has its targetElem and channel object configured
@@ -144,71 +187,6 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		// update references
 		this.targetElem.CyphorInput = this;
 		this.iframe.CyphorInput = this;
-	};
-
-	CyphorInput.prototype.addSendButton = function(buttonElem) {
-		var _self = this;
-		_self.sendButton = buttonElem;
-
-		buttonElem.addEventInterceptor('mousedown', function (eve) {
-
-			// if the CyphorInput is busy inputting text, don't intercept the event
-			if(!_self.isTyping){
-				_self.isTyping = true;
-				_self.iframe.style.display = 'none';
-				_self.targetElem.style.display = '';
-
-				// send submit message
-				var submitButtonClickMsg = {
-					action : 'SUBMIT_BUTTON',
-					eventCoords : {
-						x : eve.offsetX,
-						y : eve.offsetY
-					},
-					buttonCoords : getCoords(eve.target),
-					inputCoords : getCoords(_self.targetElem)
-				};
-				_self.iframe.contentWindow.postMessage(submitButtonClickMsg, '*');
-
-				// prevent the event from passing
-				eve.preventDefault();
-				eve.stopPropagation();
-				return false;
-			}
-		});
-
-		function preventUser (eve) {
-			// checks if its the chrome extension is typing
-			if(!_self.isTyping){
-				eve.preventDefault();
-				eve.stopPropagation();
-				return false;
-			}
-		}
-
-		// prevent user click from passing through
-		buttonElem.addEventInterceptor('mouseup', preventUser);
-		buttonElem.addEventInterceptor('click', preventUser);
-	};
-
-	CyphorInput.prototype.configureSendButton = function () {
-		var _CyphorInputContext = this;
-		function clickFn (eve) {
-			console.log('captured click');
-			_CyphorInputContext.addSendButton(eve.target);
-
-			window.removeEventListener('mousedown', clickFn, true);
-			window.removeEventListener('mouseup', prevent, true);
-			window.removeEventListener('click', prevent, true);
-
-			eve.stopPropagation();
-			eve.preventDefault();
-			return false;
-		}
-
-		window.addEventListener('mousedown', clickFn, true);
-		window.addEventListener('mouseup', prevent, true);
-		window.addEventListener('click', prevent, true);
 	};
 
 	return CyphorInput;

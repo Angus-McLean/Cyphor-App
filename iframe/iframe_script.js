@@ -2,6 +2,8 @@
 
 	var channelObj;
 
+	var inputElem;
+
 	// create and send key object to server
 	function encryptMessage(text, permissionObj) {
 		// generate key
@@ -23,7 +25,7 @@
 		return final;
 	}
 
-	function submitButton(eve) {
+	function getEncryptedText() {
 		var inp = document.getElementById('cyphor-input'),
 			decrypted = null;
 
@@ -35,33 +37,22 @@
 			inp.innerText = "";
 		}
 
-		var final = encryptMessage(decrypted);
+		return encryptMessage(decrypted);
+	}
 
-		// pass encrypted package to content window.
-		console.log('encrypting : ', decrypted, 'SUBMIT_BUTTON : ', final);
-		eve.data.inputText = final;
+	function submitButton(eve) {
+
+		eve.data.inputText = getEncryptedText();
 		parent.postMessage(eve.data, '*');
 
-		inp.focus();
+		inputElem.focus();
 	}
 
 	function submitForm() {
-		// get decrypted message
-		var inp = document.getElementById('cyphor-input'),
-			decrypted = null;
 
-		if(inp.nodeName == 'INPUT' || inp.nodeName == 'TEXTAREA'){
-			decrypted = inp.value;
-			inp.value = "";
-		} else {
-			decrypted = inp.innerText;
-			inp.innerText = "";
-		}
-
-		var final = encryptMessage(decrypted);
+		var final = getEncryptedText();
 
 		// pass encrypted package to content window.
-		console.log('encrypting : ', decrypted, 'MESSAGE : ', final);
 		require('CyphorMessageClient').emit(channelObj._id + ':send_text', {
 			text : final
 		});
@@ -70,11 +61,12 @@
 			message : final
 		}, '*');
 
-		inp.focus();
+		inputElem.focus();
 	}
 
+
+
 	window.onload = function () {
-		document.getElementById('cyphor-input');
 		setFocus();
 	};
 
@@ -107,6 +99,15 @@
 			setFocus();
 		} else if(eve.data.action == 'CHANNEL'){
 			channelObj = eve.data.channel;
+
+			require(['CyphorMessageClient'], function (cmc) {
+				cmc.on(channelObj._id + ':request_text', function (msg, resp) {
+					resp({
+						text : getEncryptedText()
+					});
+				});
+			});
+
 		}
 	});
 
@@ -174,7 +175,7 @@
 
 		target.style.background = 'transparent';
 		target.id = "cyphor-input";
-		target.style.display = 'block';
+		//target.style.display = 'block';
 		if(msg.target.type != 'textarea' && msg.target.type != 'input'){
 			target.setAttribute("contentEditable", true);
 		}
@@ -188,7 +189,7 @@
 			document.getElementById('cyphorgrey').style.display = '';
 			document.getElementById('cyphorgreen').style.display = 'none';
 		});
-
+		inputElem = target;
 		document.body.appendChild(target);
 	}
 

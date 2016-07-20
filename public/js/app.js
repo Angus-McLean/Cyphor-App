@@ -30,6 +30,20 @@ angular
 				url:'/channels/:domain',
 				controller: 'domainCtrl as domainCtrl',
 				templateUrl:'views/channels/channels.domain.view.html'
+			})
+			// Settings
+
+
+			// Feedback
+			.state('feedback',{
+				url:'/feedback',
+				templateUrl:'views/feedback/feedback.view.html',
+				controller: 'feedbackCtrl as fbCtrl',
+			})
+			.state('bugreport',{
+				url:'/bugreport',
+				templateUrl:'views/feedback/bugreport.view.html',
+				controller: 'bugreportCtrl as bgCtrl',
 			});
 	}])
 	.run(['$rootScope', '$state', 'pouchDB', function($rootScope, $state) {

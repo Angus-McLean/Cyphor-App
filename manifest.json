@@ -1,5 +1,3 @@
-//manifest.json
-
 {
 	"name": "Cyphor",
 	"description": "Bringing seamless information privacy to all your messaging applications",
@@ -25,12 +23,14 @@
 			"matches": ["http://*/*", "https://*/*"],
 			"js": [
 				"content/injectInterceptor.content.js",
+				"lib/bower_components/lodash/dist/lodash.min.js",
 				"lib/bower_components/requirejs/require.min.js",
 				"lib/ChromeConnect.js",
 				"lib/bower_components/cryptojs/crypto.content.js",
 				"content/index.content.js",
 				"content/decrypt.content.js",
 				"content/interceptor.content.js",
+				"content/DomUILib.content.js",
 				"content/CyphorDomLib.content.js",
 				"content/CyphorObserver.content.js",
 				"content/buildChannel.content.js",
@@ -38,6 +38,7 @@
 				"content/parseChannel.content.js",
 				"content/CyphorChannels.content.js",
 				"content/CyphorIframeLib.content.js",
+				"content/ButtonInterceptor.content.js",
 				"content/CyphorInput.content.js",
 				"content/simulateInput.content.js"
 			],
@@ -49,6 +50,7 @@
 	],
 	"web_accessible_resources": [
 		"/iframe/div.iframe.html",
+		"/iframe/button.iframe.html",
 		"/injectables/EventInterceptor.injectable.js"
 	],
 	"browser_action": {
