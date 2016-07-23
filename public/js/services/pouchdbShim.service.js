@@ -12,6 +12,11 @@ angular.module('CyphorApp')
 			return sendChromeRuntime({action:'pouchdb:put', doc:obj});
 		}
 
+		function remove(obj) {
+			obj._deleted = true;
+			return sendChromeRuntime({action:'pouchdb:put', doc:obj});
+		}
+
 		function sendChromeRuntime(msgObj) {
 			var deferred = $q.defer();
 			chrome.runtime.sendMessage(msgObj, function () {
@@ -21,7 +26,8 @@ angular.module('CyphorApp')
 		}
 
 		return {
-			put : put
+			put : put,
+			remove : remove
 		};
 
 	}]);

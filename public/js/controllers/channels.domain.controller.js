@@ -18,6 +18,10 @@ angular.module('CyphorApp')
 			pouchDB.db.put(angularChannelObj.doc);
 		};
 
+		$scope.deleteChannel = function (angularChannelObj) {
+			pouchDB.db.remove(angularChannelObj.doc);
+		};
+
 		self.configureSendButton = function (channelObj) {
 			console.log('configureSendButton', channelObj);
 			CyphorMessageClient.emit(channelObj.doc.channel_id + ':configure_button', channelObj.doc);

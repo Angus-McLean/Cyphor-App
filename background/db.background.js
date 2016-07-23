@@ -94,6 +94,9 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 		console.log('PouchDB change event', arguments);
 		if (change.deleted) {
 			// document was deleted
+			msgCli.emit('*:deleted', change);
+			msgCli.emit(change.doc.origin_url + ':deleted', change);
+			msgCli.emit(change.doc._id + ':deleted', change);
 		} else {
 			// doc was changed
 			msgCli.emit('*:change', change.doc);
