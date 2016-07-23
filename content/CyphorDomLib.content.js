@@ -126,7 +126,17 @@ define('CyphorDomLib', [], function () {
 		}
 		Array.prototype.forEach.call(elem.attributes, function (attr) {
 			if(avoid.indexOf(attr.name) == -1){
-				eleQuery += (attr.value) ? ('['+attr.name+'="'+attr.value.replace(/"/g,'\\"')+'"]') : '';
+
+				// validate that the attribute value doesn't contain new line characters
+				if(/[\n\r]/.test(attr.value)){
+					return;
+				}
+
+				// format attribute selector
+				var selectorName = attr.name;
+				var selectorValue = attr.value.replace(/"/g,'\\"');
+
+				eleQuery += (attr.value) ? ('['+selectorName+'="'+selectorValue+'"]') : '';
 			}
 		});
 		return (eleQuery !== '') ? elem.tagName + '' + eleQuery : null;
