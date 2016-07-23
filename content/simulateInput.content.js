@@ -95,7 +95,7 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 
 		setTimeout(function() {
 			triggerTextInput(elem, text);
-			setTimeout(function () {
+			//setTimeout(function () {
 				['keydown', 'keypress','keyup'].forEach(function (keyType, ind) {
 					triggerKeyEvent(elem, {
 						type : keyType,
@@ -106,7 +106,7 @@ define('simulateInput', ['CyphorIframeLib'], function (CyphorIframeLib) {
 						which:13
 					});
 				});
-			}, 5);
+			//}, 5);
 
 			setTimeout(function () {
 				elem.CyphorInput.iframe.focus();
