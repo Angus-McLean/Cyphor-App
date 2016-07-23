@@ -63,10 +63,13 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		});
 
 		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
-			console.log(arguments);
 			if(!msg.active) {
 				_this.takeout();
 			}
+		});
+
+		CyphorMessageClient.on(this.channel._id + ':deleted', function (msg) {
+			_this.takeout();
 		});
 	}
 

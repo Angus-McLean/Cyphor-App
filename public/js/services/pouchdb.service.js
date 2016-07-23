@@ -29,6 +29,17 @@ angular.module('CyphorApp')
 			}
 		}
 
+		CyphorMessageClient.on('*:deleted', function (changeEvent) {
+			delete index[changeEvent.id];
+			if(data[changeEvent.doc.origin_url]){
+				data[changeEvent.doc.origin_url].forEach(function (elem, ind, arr) {
+					if(elem._id == changeEvent.doc.id){
+						arr.splice(ind, 1);
+					}
+				});
+			}
+		});
+
 		function getByOrigin(queriedOrigin) {
 			var msgObj = {
 				action : 'pouchdb:query',

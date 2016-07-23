@@ -91,6 +91,12 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 		// parseDOMForActiveChannels is triggered on this event in the observeChannel module
 	});
 
+	// NOTE: temporarily put in this hotfix so I can push this build before the gf freaks out -.-
+	msgCli.on(window.location.host + ':deleted', function (changeEvent) {
+		changeEvent.doc.active = false;
+		handleIndexing(changeEvent.doc);
+	});
+
 
 	return {
 		handleIndexing : handleIndexing,
