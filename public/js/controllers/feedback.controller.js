@@ -1,5 +1,10 @@
 angular.module('CyphorApp')
 	.controller('feedbackCtrl', ['$scope', function($scope, CyphorMessageClient) {
+		
+		var feedbackFormDefaults = {
+			allow_response : true
+		};
+		
 		$scope.types = [{
 			name : 'Design / UI',
 			val : 'design_ui'
@@ -26,11 +31,15 @@ angular.module('CyphorApp')
 			val : 'other'
 		}];
 
-		$scope.feedback = {
-			allow_response : true
-		};
+		$scope.feedback = _.extend({}, feedbackFormDefaults);
 
 		$scope.send = function () {
 			console.log('sending feedback', $scope.feedback);
+		};
+		
+		$scope.send = function () {
+			// @TODO : get manifest parameter
+			$http.post('https://www.cyphor.io' + '/forms/feedback', $scope.feedback)
+				.then(()=> $scope.feedback = _.extend({}, defaultBugReport));
 		};
 }]);
