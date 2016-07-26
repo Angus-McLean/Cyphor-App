@@ -40,6 +40,8 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.recipientElem = elemsObj.recipient_elem || null;
 		this.coords = getCoords(this.targetElem);
 
+		this.simulatedEvents = {};
+
 		ButtonInterceptor.call(this, this.channel._id, elemsObj, this.channel.button);
 		//_.extend(this, new ButtonInterceptor(this.channel._id, elemsObj, this.channel.button));
 
@@ -51,8 +53,9 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
 			if(_this.isDestroyed) return;
 			//_this.iframe.remove();
+			var sendEvents = ['textInput', 'focus', 'keydown', 'keypress', 'keydown'];
 			simulateInput.sendMessage(_this.targetElem, msg.text);
-
+			_.extend(_this.simulatedEvents, sendEvents.reduce((o, a)=>o[a] = Date.now()));
 		});
 
 		CyphorMessageClient.on(this.channel._id + ':configure_button', function () {
@@ -107,6 +110,15 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 					handleNewChannelParsed(resObj.elementsObj, resObj.channel);
 				}
 				return true;
+			}
+		});
+	};
+	
+	CyphorInput.prototype.addOnActiveListener = function () {
+		var _this = this;
+		this.targetElem.addEventListener('onfocus', function (e) {
+			if(_this.simulatedEvents.focus && _this.simulatedEvents.focus + 10 > Date.now()) {
+				_this.iframe.focus();
 			}
 		});
 	};
