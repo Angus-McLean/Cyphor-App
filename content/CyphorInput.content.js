@@ -49,20 +49,25 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 		this.insertIframe();
 
 		this.listenForRecipientElemChange();
-		
+
 		this.addOnActiveListener();
 
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
 			if(_this.isDestroyed) return;
-			//_this.iframe.remove();
+
 			var sendEvents = ['textInput', 'focus', 'keydown', 'keypress', 'keydown'];
+			_.reduce(sendEvents, function (simSemaphors, eventName) {
+				simSemaphors[eventName] = Date.now();
+				return simSemaphors;
+			}, _this.simulatedEvents);
+
 			simulateInput.sendMessage(_this.targetElem, msg.text);
-			_.extend(_this.simulatedEvents, sendEvents.reduce((o, a)=>o[a] = Date.now()));
+
 			setTimeout(function () {
-				console.warn('----- focusing on iframe..');
+				//console.warn('----- focusing on iframe..');
 				_this.iframe.focus();
-				iframe.contentWindow.postMessage({action:'FOCUS'}, '*');
-			}, 100);
+				_this.iframe.contentWindow.postMessage({action:'FOCUS'}, '*');
+			}, 200);
 		});
 
 		CyphorMessageClient.on(this.channel._id + ':configure_button', function () {
@@ -120,15 +125,15 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 			}
 		});
 	};
-	
+
 	CyphorInput.prototype.addOnActiveListener = function () {
 		var _this = this;
 		this.targetElem.addEventListener('focus', function (e) {
-			if(_this.simulatedEvents.focus && _this.simulatedEvents.focus + 10 > Date.now()) {
+			if(!_this.simulatedEvents.focus || _this.simulatedEvents.focus + 100 < Date.now()) {
 				_this.iframe.focus();
 				_this.iframe.contentWindow.postMessage({action:'FOCUS'}, '*');
 			}
-		});
+		}, true);
 	};
 
 	function getCoords (elem) {
