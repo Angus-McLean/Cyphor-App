@@ -49,6 +49,7 @@
 		"tabs", "http://*/*", "activeTab", "storage", "debugger"
 	],
 	"web_accessible_resources": [
+		"/config.json",
 		"/iframe/div.iframe.html",
 		"/iframe/button.iframe.html",
 		"/injectables/EventInterceptor.injectable.js"
