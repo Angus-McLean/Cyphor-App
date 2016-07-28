@@ -114,8 +114,10 @@
 	function setFocus() {
 		console.log('focusing');
 		var elem = document.getElementById('cyphor-input');
-		if(elem){
-			elem.focus();
+		elem.focus();
+		if(elem.setSelectionRange){
+			elem.setSelectionRange(0,0);
+		} else {
 
 			var range = document.createRange();
 			var sel = window.getSelection();
