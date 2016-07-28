@@ -1,5 +1,5 @@
 angular.module('CyphorApp')
-	.controller('bugreportCtrl', ['$scope', '$http', function($scope, $http, CyphorMessageClient) {
+	.controller('bugreportCtrl', ['config', '$scope', '$http', '$state', function(config, $scope, $http, $state) {
 
 		var defaultBugReport = {
 			allow_contact : true,
@@ -24,7 +24,7 @@ angular.module('CyphorApp')
 			val : 'other'
 		}];
 
-		$scope.bugreport = _.extend({}, defaultBugReport);
+		$scope.bugreport = angular.copy(defaultBugReport);
 
 		$scope.shift = function (ind, direction) {
 			var steps = $scope.bugreport.steps;
@@ -55,11 +55,12 @@ angular.module('CyphorApp')
 		$scope.goToTab = function (ind) {
 			$scope.activeTab = ind;
 		};
-		
+
 		$scope.send = function () {
 			// @TODO : get manifest parameter
-			$http.post('https://www.cyphor.io' + '/forms/bugreport', $scope.bugreport)
-				.then(()=> $scope.bugreport = _.extend({}, defaultBugReport));
+			$http.post(config.get().base_url + '/forms/bugreport', $scope.bugreport)
+				.then(()=> $scope.bugreport = angular.copy(defaultBugReport));
+				$state.go('confirmation');
 		};
 
 }]);

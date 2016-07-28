@@ -44,6 +44,13 @@ angular
 				url:'/bugreport',
 				templateUrl:'views/feedback/bugreport.view.html',
 				controller: 'bugreportCtrl as bgCtrl',
+			})
+			.state('confirmation',{
+				url:'/confirmation',
+				templateUrl:'views/feedback/confirmation.view.html',
+				controller: ['$scope', '$state', function ($scope, $state) {
+					$scope.home = ()=>$state.go('channels');
+				}],
 			});
 	}])
 	.run(['$rootScope', '$state', 'pouchDB', 'config', function($rootScope, $state) {

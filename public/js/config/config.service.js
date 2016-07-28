@@ -9,6 +9,6 @@ angular.module('CyphorApp')
 		});
 
 		return {
-			getConfig : () => config
+			get : () => config
 		};
 }]);
