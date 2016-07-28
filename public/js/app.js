@@ -46,7 +46,7 @@ angular
 				controller: 'bugreportCtrl as bgCtrl',
 			});
 	}])
-	.run(['$rootScope', '$state', 'pouchDB', function($rootScope, $state) {
+	.run(['$rootScope', '$state', 'pouchDB', 'config', function($rootScope, $state) {
 
 		$rootScope.$on('$stateChangeStart', function(evt, to, params) {
 			if (to.redirectTo) {
