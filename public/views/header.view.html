@@ -5,7 +5,9 @@
 			<md-icon class="md-default-theme" class="material-icons">&#xE5D2;</md-icon>
 		</md-button>
 		<h2>
-			<span>Cyphor > {{$state.current.name}}</span>
+			<span ng-click='uiNavigate("channels.all")') class="pointer">Cyphor</span>
+			<span> > </span>
+			<span>{{$state.current.final_display}}</span>
 		</h2>
 	</div>
 </md-toolbar>

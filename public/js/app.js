@@ -22,11 +22,13 @@ angular
 				redirectTo: 'channels.all'
 			})
 			.state('channels.all',{
+				display_name : 'All Websites',
 				url:'/channels/all',
 				templateUrl:'views/channels/all.view.html',
 				controller: 'alldomainsCtrl as allCtrl',
 			})
 			.state('channels.domain',{
+				display_name : (s, p) => p.domain,
 				url:'/channels/:domain',
 				controller: 'domainCtrl as domainCtrl',
 				templateUrl:'views/channels/channels.domain.view.html'
@@ -36,16 +38,19 @@ angular
 
 			// Feedback
 			.state('feedback',{
+				display_name : 'Feedback',
 				url:'/feedback',
 				templateUrl:'views/feedback/feedback.view.html',
 				controller: 'feedbackCtrl as fbCtrl',
 			})
 			.state('bugreport',{
+				display_name : 'Bug Report',
 				url:'/bugreport',
 				templateUrl:'views/feedback/bugreport.view.html',
 				controller: 'bugreportCtrl as bgCtrl',
 			})
 			.state('confirmation',{
+				display_name : 'Confirmation',
 				url:'/confirmation',
 				templateUrl:'views/feedback/confirmation.view.html',
 				controller: ['$scope', '$state', function ($scope, $state) {
@@ -60,5 +65,8 @@ angular
 				evt.preventDefault();
 				$state.go(to.redirectTo, params, {location: 'replace'});
 			}
+
+			// for displaying current state on the header bar
+			to.final_display = (typeof to.display_name === 'function') ? to.display_name(to, params) : to.display_name;
 		});
 	}]);
