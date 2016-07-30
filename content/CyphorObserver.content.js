@@ -47,9 +47,9 @@ define('CyphorObserver', [], function () {
 		if(mutRec.type === 'characterData' && index.change.length) {
 			_.filter(index.change, function (list) {
 				return list.target === mutRec.target || list.target.contains(mutRec.target);
-			}).forEach(function (list) {
+			}).forEach(function (list, ind) {
 				//console.log('triggereing listener', list, mutRec);
-				var removeListener = list.listener.call(list.target, mutRec, listener);
+				var removeListener = list.listener.call(list.target, mutRec, list);
 				if(removeListener) index.change.splice(ind, 1);
 			});
 		}
