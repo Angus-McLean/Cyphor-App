@@ -1,12 +1,22 @@
-require(['CyphorDomLib'], function (CyphorDomLib) {
+define('DecryptionManager', ['CyphorDomLib', 'CyphorMessageClient', 'indexChannel'], function (CyphorDomLib, msgCli, indexChannel) {
 
 	var encryptedMessageRegex = /\-{1,3} cyphor\.io \-\- ([A-Za-z0-9\=\+]+) \-\- ([A-Za-z0-9\=\+\/]+) \-\- cyphor\.io \-\-/;
+
+	var keys = [];
+	var keyIndex = null;
 
 	function decryptNodeTree(startElem) {
 		iterateEncryptedNodes(startElem, function (textNode) {
 			//var baseNode = CyphorDomLib.getBaseTextNode(textNode, encryptedMessageRegex);
 			//console.log(textNode);
-			addElementOnTop(textNode, decryptFromString((textNode.nodeValue||textNode.textContent||textNode.innerText)));
+
+			if(!keyIndex || textNode.getAttribute('data-cyphorencryptedmsg') === 'true') {
+				return;
+			}
+
+			var decryptedMsgObj = decryptFromString((textNode.nodeValue||textNode.textContent||textNode.innerText));
+
+			addElementOnTop(textNode, decryptedMsgObj);
 		});
 	}
 
@@ -66,29 +76,85 @@ require(['CyphorDomLib'], function (CyphorDomLib) {
 	}
 
 	function decryptFromString (encryptedString) {
+
+		// parse encrypted message
 		var strMatch = encryptedString.match(encryptedMessageRegex);
 		var msgID = strMatch[1],
 			msgTxt = strMatch[2];
 
-		var decryptionKey = '1234567890';
+		// get associated key object
+		var keyDoc = keyIndex[msgID] || {};
+		var decryptionKey = (keyDoc && keyDoc.aes_key) || '1234567890';
 
 		var decryptedObj = CryptoJS.AES.decrypt(msgTxt, decryptionKey);
 		var decryptedMessage = decryptedObj.toString(CryptoJS.enc.Utf8);
 		//console.log('decrypted : '+msgTxt+' to : '+decryptedMessage);
 
+		var finalMsg = encryptedString.replace(encryptedMessageRegex, decryptedMessage);
+		var channel_isActive = false;
+
+		// if(!keyDoc) {
+		// 	// keyDoc is undefined because keys haven't been loaded yet..
+		// 	return {
+		// 		active : true,
+		// 		encrypted_text : msgTxt,
+		// 		decrypted_text : finalMsg,
+		// 		keyDoc : {}
+		// 	};
+		// }
+
+		if(indexChannel.channels.index.id[keyDoc.channel_id] && indexChannel.channels.index.id[keyDoc.channel_id].active){
+			channel_isActive = true;
+		}
+
 		// replace encrypted component with decryptedMessage
-		return encryptedString.replace(encryptedMessageRegex, decryptedMessage);
+		return {
+			active : channel_isActive,
+			encrypted_text : msgTxt,
+			decrypted_text : finalMsg,
+			keyDoc : keyDoc
+		};
 	}
 
-	function addElementOnTop(elem, textStr) {
+	function addElementOnTop(elem, decryptedMsgObj) {
 		var newE = elem.cloneNode();
 
-		newE.innerText = textStr;
-		elem.style.display = 'none';
+		// set data attribute for cyphorchannelid to do queries on it later
+		newE.setAttribute('data-cyphorchannelid', decryptedMsgObj.keyDoc.channel_id);
+		newE.setAttribute('data-cyphorencryptedmsg', false);
+		elem.setAttribute('data-cyphorchannelid', decryptedMsgObj.keyDoc.channel_id);
+		elem.setAttribute('data-cyphorencryptedmsg', true);
+
+		newE.innerText = decryptedMsgObj.decrypted_text;
+
+		if(decryptedMsgObj.active) {
+			elem.style.display = 'none';
+		} else {
+			newE.style.display = 'none';
+		}
+
 		elem.parentElement.appendChild(newE);
 		return newE;
 	}
 
+	function getMessageNodes(channel_id) {
+		return {
+			enc : document.querySelectorAll(`[data-cyphorchannelid="${channel_id}"][data-cyphorencryptedmsg="true"]`),
+			dec : document.querySelectorAll(`[data-cyphorchannelid="${channel_id}"][data-cyphorencryptedmsg="false"]`)
+		};
+	}
+
+	function decryptForChannel(channel_id) {
+		var {enc, dec} = getMessageNodes(channel_id);
+		_.forEach(dec, elem => elem.style.display = '');
+		_.forEach(enc, elem => elem.style.display = 'none');
+	}
+
+	function encryptForChannel(channel_id) {
+		var {enc, dec} = getMessageNodes(channel_id);
+		_.forEach(enc, elem => elem.style.display = '');
+		_.forEach(dec, elem => elem.style.display = 'none');
+	}
 
 	// observe inserted encrypted text nodes
 	var encryptedTextObserver = new MutationObserver(function(mutations){
@@ -111,5 +177,33 @@ require(['CyphorDomLib'], function (CyphorDomLib) {
 	encryptedTextObserver.observe(document, insertText);
 	decryptNodeTree(document.body);
 
+	// query for keys for that domain
+	var msgObj = {
+		action : 'pouchdb:keys:query',
+		query : {
+			origin_url : window.location.host
+		}
+	};
+	chrome.runtime.sendMessage(msgObj, function (resp) {
+		keyIndex = keyIndex || {};
+		keys = resp.rows.map(function (a) {
+			keyIndex[a.key._id] = a.key;
+			return a.key;
+		});
+	});
 
-})();
+	msgCli.on('keys:'+window.location.host+':change', function (msg) {
+		keyIndex = keyIndex || {};
+		keyIndex[msg._id] = msg;
+		keys.push(msg);
+	});
+
+	return {
+		keys : keys,
+		decryptForChannel : decryptForChannel,
+		encryptForChannel : encryptForChannel
+	};
+
+});
+
+require(['DecryptionManager'], function () {});
