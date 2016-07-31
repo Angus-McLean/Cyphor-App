@@ -4,7 +4,7 @@ var rename = require('gulp-rename');
 module.exports = function (gulp) {
 
 	gulp.task('manifest', function () {
-		gulp.src('./build/manifest.prod.js')
+		gulp.src('./build/manifest.prod.json')
 			.pipe(rename('manifest.json'))
 			.pipe(gulp.dest('./dist'));
 	});
