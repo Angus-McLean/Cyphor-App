@@ -4,16 +4,20 @@ define('buildChannel', ['CyphorObserver', 'CyphorDomLib', 'DomUILib'], function 
 	console.log('buildChannel.content.js', arguments);
 
 	// define channels module :
-	var tempChannel = {};
+	var tempChannel = null;
 
-	// state : RECIPIENT, EDITABLE, ACTIVE
-	var state = null;
 
 	var channelObj = {};
 
 	function initSaveChannel (callback) {
+
+		// user probably tried to trigger channel parse twice. Don't do anything
+		if(tempChannel !== null) {
+			return;
+		}
+
 		tempChannel = {};
-		// state = 'RECIPIENT';
+
 		DomUILib.addGreyOverlay();
 
 		// prevent user click from passing through
@@ -26,7 +30,7 @@ define('buildChannel', ['CyphorObserver', 'CyphorDomLib', 'DomUILib'], function 
 				DomUILib.removeGreyOverlay();
 
 				// reset tempChannel
-				tempChannel = {};
+				tempChannel = null;
 
 				// remove all interceptors
 				document.body.removeEventInterceptor('mousedown', true);
@@ -103,10 +107,21 @@ define('buildChannel', ['CyphorObserver', 'CyphorDomLib', 'DomUILib'], function 
 							tempChannel.editable_elem = tempChannel.clicked_elem;
 						}
 						tempChannel.editable_elem = tempChannel.active_elem;
+
+						// validate tempChannel elements
+						if(!validateTempChannelElems(tempChannel)){
+							console.warn('Invalid tempChannel elements');
+
+							tempChannel = null;
+							DomUILib.removeGreyOverlay();
+
+							return callback(null, null);
+						}
+
 						// save and create channel
 						var channelDoc = buildChannelObj(eve);
 
-						state = null;
+						tempChannel = null;
 						DomUILib.removeGreyOverlay();
 
 						callback(null, channelDoc);
@@ -115,6 +130,18 @@ define('buildChannel', ['CyphorObserver', 'CyphorDomLib', 'DomUILib'], function 
 			}
 
 		});
+	}
+
+	function validateTempChannelElems(tempChannel) {
+		var res = true;
+
+		var validElems = ['TEXTAREA', 'INPUT'];
+
+		if(!tempChannel.editable_elem) return false;
+		if(validElems.indexOf(tempChannel.editable_elem.nodeName) == -1 && !tempChannel.editable_elem.isContentEditable) return false;
+		if(tempChannel.editable_elem == tempChannel.recipient_elem) return false;
+
+		return res;
 	}
 
 	function prevent (eve) {

@@ -2,6 +2,12 @@
 define('DomUILib', [], function () {
 
 	function addGreyOverlay () {
+
+		var old_elem = document.getElementById('cryptolayer-overlay');
+		if(old_elem) {
+			old_elem.remove();
+		}
+
 		var div_elem = document.createElement('div');
 
 		var style_string = 'pointer-events:none;';
