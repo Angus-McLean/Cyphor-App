@@ -53,10 +53,11 @@ define('CyphorIframeLib', [], function () {
 		iframe.style["z-index"] = getZIndex(siblingElem) + 1;
 		iframe.style.backgroundColor = parStyle.backgroundColor;
 		iframe.style.position = "absolute";
-		iframe.style.height = "100%";
-		iframe.style.width = "100%";
-		iframe.style.top = parStyle.paddingTop;
-		iframe.style.left = parStyle.paddingLeft;
+		var {height, width} = siblingElem.getClientRects()[0];
+		iframe.style.height = height + 'px';
+		iframe.style.width = width + 'px';
+		iframe.style.top = siblingElem.offsetTop + 'px';
+		iframe.style.left = siblingElem.offsetLeft + 'px';
 		iframe.style.overflow = "hidden";
 		iframe.style.border = "0px none transparent";
 		iframe.style.padding = "0px";
