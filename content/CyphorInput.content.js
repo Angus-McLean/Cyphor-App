@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'ButtonInterceptor'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, ButtonInterceptor) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'ButtonInterceptor', 'DecryptionManager'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, ButtonInterceptor, DecryptionManager) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -52,6 +52,8 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		this.addOnActiveListener();
 
+		DecryptionManager.decryptForChannel(_this.channel._id);
+
 		CyphorMessageClient.on(this.channel._id + ':send_text', function (msg) {
 			if(_this.isDestroyed) return;
 
@@ -79,7 +81,10 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 
 		CyphorMessageClient.on(this.channel._id + ':change', function (msg) {
 			if(!msg.active) {
+				DecryptionManager.encryptForChannel(_this.channel._id);
 				_this.takeout();
+			} else {
+				DecryptionManager.decryptForChannel(_this.channel._id);
 			}
 		});
 
