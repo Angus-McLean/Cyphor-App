@@ -34,11 +34,7 @@ module.exports = function (gulp) {
 		gulp.src('./injectables/**/*').pipe(gulp.dest('./dist/injectables'));
 	});
 
-	gulp.task('manifest', function () {
-		gulp.src('./build/manifest.prod.js')
-			.pipe(rename('manifest.json'))
-			.pipe(gulp.dest('./dist'));
-	});
 
-	gulp.task('app', ['background', 'content', 'manifest', 'iframe', 'injectables']);
+
+	gulp.task('app', ['background', 'content', 'iframe', 'injectables']);
 };
