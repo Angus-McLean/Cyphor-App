@@ -10,4 +10,4 @@ require('./build/config.gulp.js')(gulp);
 // build public :
 require('./build/public/buildPublic.gulp.js')(gulp);
 
-gulp.task('default', ['app', 'public']);
+gulp.task('default', ['app', 'app-config', 'public']);

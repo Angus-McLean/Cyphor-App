@@ -10,7 +10,7 @@ module.exports = function (gulp) {
 	});
 
 	gulp.task('config', function () {
-		gulp.src('./build/config.prod.js')
+		gulp.src('./build/config.prod.json')
 			.pipe(rename('config.json'))
 			.pipe(gulp.dest('./dist'));
 	});
