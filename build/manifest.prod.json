@@ -1,7 +1,7 @@
 {
 	"name": "Cyphor",
 	"description": "Bringing seamless information privacy to all your messaging applications",
-	"version": "0.1.0.0",
+	"version": "0.1.0.01",
 	"manifest_version": 2,
 
 	"icons": {
