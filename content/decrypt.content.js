@@ -10,9 +10,9 @@ define('DecryptionManager', ['CyphorDomLib', 'CyphorMessageClient', 'indexChanne
 			//var baseNode = CyphorDomLib.getBaseTextNode(textNode, encryptedMessageRegex);
 			//console.log(textNode);
 
-			if(!keyIndex || textNode.getAttribute('data-cyphorencryptedmsg') === 'true') {
-				return;
-			}
+			// if(!keyIndex || textNode.getAttribute('data-cyphorencryptedmsg') === 'true') {
+			// 	return;
+			// }
 
 			var decryptedMsgObj = decryptFromString((textNode.nodeValue||textNode.textContent||textNode.innerText));
 
@@ -91,7 +91,9 @@ define('DecryptionManager', ['CyphorDomLib', 'CyphorMessageClient', 'indexChanne
 		//console.log('decrypted : '+msgTxt+' to : '+decryptedMessage);
 
 		var finalMsg = encryptedString.replace(encryptedMessageRegex, decryptedMessage);
-		var channel_isActive = false;
+		// NOTE : hotfix for alpha so all messages are decrypted always
+		//var channel_isActive = false;
+		var channel_isActive = true;
 
 		// if(!keyDoc) {
 		// 	// keyDoc is undefined because keys haven't been loaded yet..
@@ -151,6 +153,7 @@ define('DecryptionManager', ['CyphorDomLib', 'CyphorMessageClient', 'indexChanne
 	}
 
 	function encryptForChannel(channel_id) {
+		return;
 		var {enc, dec} = getMessageNodes(channel_id);
 		_.forEach(enc, elem => elem.style.display = '');
 		_.forEach(dec, elem => elem.style.display = 'none');
