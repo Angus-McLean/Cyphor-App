@@ -5,17 +5,16 @@
 	var inputElem;
 
 	// create and send key object to server
-	function encryptMessage(text, permissionObj) {
-		// generate key
-		var randomKey = Math.random().toString()+Math.random().toString();
-		randomKey = randomKey.replace(/\./g,'').substring(0,16);
-		randomKey = '1234567890';
+	function encryptMessage(text, channelObj) {
+
+		// get and save key to db
+		var {randomKey,messageID} = createKeyObject(channelObj);
 
 		// encrypt the message
 		var encryptedMessage = CryptoJS.AES.encrypt(text, randomKey).toString();
 
-		// generate the message id
-		var messageID = btoa(Date.now() + Math.random().toString().substring(2,6));
+
+
 		// var lock character : \uD83D\uDD12
 		var msgPrepend = '- cyphor.io -- '+messageID+ ' -- ';
 		var msgAppend = ' -- cyphor.io --';
@@ -23,6 +22,33 @@
 		// package up message
 		var final = msgPrepend + encryptedMessage + msgAppend;
 		return final;
+	}
+
+	function createKeyObject(channel) {
+
+		// generate the message id
+		var messageID = btoa(Date.now() + Math.random().toString().substring(2,6));
+
+		// generate key
+		var randomKey = Math.random().toString()+Math.random().toString();
+		randomKey = randomKey.replace(/\./g,'').substring(0,16);
+		randomKey = '1234567890';
+
+		var keyDoc = {
+			_id : messageID,
+			channel_id : channel._id,
+			origin_url : channel.origin_url,
+			aes_key : randomKey
+		};
+		var msgObj = {
+			action : 'pouchdb:keys:put',
+			doc : keyDoc
+		};
+		chrome.runtime.sendMessage(msgObj, function () {
+			console.log('saveDoc recieved', arguments);
+		});
+
+		return {randomKey, messageID};
 	}
 
 	function getEncryptedText() {
@@ -37,7 +63,7 @@
 			inp.innerText = "";
 		}
 
-		return encryptMessage(decrypted);
+		return encryptMessage(decrypted, channelObj);
 	}
 
 	function submitButton(eve) {
@@ -114,6 +140,9 @@
 	function setFocus() {
 		console.log('focusing');
 		var elem = document.getElementById('cyphor-input');
+		if(!elem) {
+			return;
+		}
 		elem.focus();
 		if(elem.setSelectionRange){
 			elem.setSelectionRange(0,0);

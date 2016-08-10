@@ -4,7 +4,15 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 
 	// Initialize PouchDB
 	var db = PouchDB('channels');
+	var keysDB = PouchDB('keys');
+
+	var dbs = {
+		keys : keysDB,
+		channels : db
+	};
+
 	window.db = db;
+	window.dbs = dbs;
 
 	/*
 	 * Add chrome.runtime listeners to process queries
@@ -15,18 +23,37 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 		 }
 		 switch (request.action) {
 		 	case "pouchdb:get":
-		 		executeGet(request, sendResponse);
+		 		executeGet(db, request, sendResponse);
 		 		break;
 			case "pouchdb:getall":
-		 		executeGetAll(request, sendResponse);
+		 		executeGetAll(db, request, sendResponse);
 		 		break;
 			case "pouchdb:query":
-				executeQuery(request, sendResponse);
+				executeQuery(db, request, sendResponse);
 		 		break;
 			case "pouchdb:put":
-				executePut(request, sendResponse);
+				executePut(db, request, sendResponse);
 		 		break;
 			case "pouchdb:drop":
+				indexedDB.deleteDatabase('_pouch_channels');
+				sendResponse({});
+				break;
+		 }
+
+		 switch (request.action) {
+		 	case "pouchdb:keys:get":
+		 		executeGet(keysDB, request, sendResponse);
+		 		break;
+			case "pouchdb:keys:getall":
+		 		executeGetAll(keysDB, request, sendResponse);
+		 		break;
+			case "pouchdb:keys:query":
+				executeQuery(keysDB, request, sendResponse);
+		 		break;
+			case "pouchdb:keys:put":
+				executePut(keysDB, request, sendResponse);
+		 		break;
+			case "pouchdb:keys:drop":
 				indexedDB.deleteDatabase('_pouch_channels');
 				sendResponse({});
 				break;
@@ -35,26 +62,26 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 	 });
 
 	// get document by _id
-	function executeGet(requestObj, sendResponse) {
+	function executeGet(collection, requestObj, sendResponse) {
 		if(!(requestObj && requestObj._id)) {
 			sendResponse(null);
 		}
-		db.get(requestObj._id).then(function (doc) {
+		collection.get(requestObj._id).then(function (doc) {
 			sendResponse(doc);
 		}).catch(function (err) {
 			console.error(err);
 		});
 	}
 
-	function executeGetAll(requestObj, sendResponse) {
-		db.allDocs({include_docs: true}).then(function (doc) {
+	function executeGetAll(collection, requestObj, sendResponse) {
+		collection.allDocs({include_docs: true}).then(function (doc) {
 			sendResponse(doc);
 		}).catch(function (err) {
 			console.error(err);
 		});
 	}
 
-	function executeQuery(req, sendResponse) {
+	function executeQuery(collection, req, sendResponse) {
 
 		function validateDoc(doc, emit) {
 			for(var i in req.query){
@@ -67,15 +94,15 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 
 		var options = req.options || {};
 		options.include_docs = true;
-		db.query(validateDoc, req.options).then(function (resp) {
+		collection.query(validateDoc, req.options).then(function (resp) {
 			sendResponse(resp);
 		}).catch(function (err) {
 			console.error(err);
 		});
 	}
 
-	function executePut(requestObj, sendResponse) {
-		db.put(requestObj.doc).then(function (doc) {
+	function executePut(collection, requestObj, sendResponse) {
+		collection.put(requestObj.doc).then(function (doc) {
 			sendResponse(doc);
 		}).catch(function (err) {
 			console.error(err);
@@ -102,6 +129,27 @@ define('db', ['CyphorMessageClient', 'dbMiddelware'], function (msgCli) {
 			msgCli.emit('*:change', change.doc);
 			msgCli.emit(change.doc.origin_url + ':change', change.doc);
 			msgCli.emit(change.doc._id + ':change', change.doc);
+		}
+	}).on('error', function (err) {
+		// handle errors
+	});
+
+	keysDB.changes({
+		since: 'now',
+		live: true,
+		include_docs: true
+	}).on('change', function (change) {
+		console.log('PouchDB change event', arguments);
+		if (change.deleted) {
+			// document was deleted
+			msgCli.emit('keys:'+'*:deleted', change);
+			msgCli.emit('keys:'+change.doc.origin_url + ':deleted', change);
+			msgCli.emit('keys:'+change.doc._id + ':deleted', change);
+		} else {
+			// doc was changed
+			msgCli.emit('keys:'+'*:change', change.doc);
+			msgCli.emit('keys:'+change.doc.origin_url + ':change', change.doc);
+			msgCli.emit('keys:'+change.doc._id + ':change', change.doc);
 		}
 	}).on('error', function (err) {
 		// handle errors

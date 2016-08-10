@@ -1,5 +1,10 @@
 angular.module('CyphorApp')
-	.controller('feedbackCtrl', ['$scope', function($scope, CyphorMessageClient) {
+	.controller('feedbackCtrl', ['config', '$scope', '$http', '$state', function(config, $scope, $http, $state) {
+
+		var feedbackFormDefaults = {
+			allow_response : true
+		};
+
 		$scope.types = [{
 			name : 'Design / UI',
 			val : 'design_ui'
@@ -26,11 +31,12 @@ angular.module('CyphorApp')
 			val : 'other'
 		}];
 
-		$scope.feedback = {
-			allow_response : true
-		};
+		$scope.feedback = angular.copy(feedbackFormDefaults);
 
 		$scope.send = function () {
-			console.log('sending feedback', $scope.feedback);
+			// @TODO : get manifest parameter
+			$http.post(config.get().base_url + '/forms/feedback', $scope.feedback)
+				.then(()=> $scope.feedback = angular.copy(feedbackFormDefaults));
+				$state.go('confirmation');
 		};
 }]);

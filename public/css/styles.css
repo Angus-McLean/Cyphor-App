@@ -22,6 +22,10 @@ p {
     display: none;
 }
 
+.pointer {
+	cursor: pointer;
+}
+
 /*
 	Fixes to Angular Material CSS
 */

@@ -7,7 +7,7 @@
 						<!-- <img style="width:30px; height:30px; background-size: 30px 30px; background-repeat: no-repeat; background-position: 50% 50%;background-image: linear-gradient(to right, #42dca3 0%,#42dca3 100%), url('{{ 'http://' + domain + '/favicon.ico' }}'); background-blend-mode: color;"/> -->
 						<img ng-src="{{ 'http://' + domain + '/favicon.ico' }}" err-src="/public/img/cyphor_logo_transp_48.png " class="md-avatar"/>
 					</div>
-					<span class="md-subhead" style="line-height:50px">{{ (domain=='*')? 'All Domains' : domain }}</span>
+					<span class="md-subhead pointer" style="line-height:50px" ui-sref="channels.domain({domain : domain})">{{ (domain=='*')? 'All Domains' : domain }}</span>
 
 				</div>
 				<span class="md-subhead">{{ arr.length }}</span>
@@ -18,5 +18,8 @@
 				</div>
 			</md-list-item>
 		</div>
+		<md-list-item class="noright" layout="row" layout-align="space-between">
+			<!-- Adds spacing so user can scroll to last element -->
+		</md-list-item>
 	</md-list>
 </md-content>

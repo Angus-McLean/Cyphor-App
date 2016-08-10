@@ -22,12 +22,18 @@ define('indexChannel', ['CyphorMessageClient'], function (msgCli) {
 				recipient_clicked : {}
 			},
 			relative : {},
-			selectors : {}
+			selectors : {},
+			id : {}
 		},
-		tempChannel : {}
+		tempChannel : {},
+		all : []
 	};
 
 	function handleIndexing (channelObj) {
+		// push to all
+		channels.all.push(channelObj);
+		channels.index.id[channelObj._id] = channelObj;
+
 		// depricated version of channel index
 		indexChannelObj(channelObj);
 
