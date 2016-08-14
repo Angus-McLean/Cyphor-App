@@ -1,5 +1,5 @@
 
-define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'CyphorIframeLib', 'simulateInput', 'ButtonInterceptor', 'DecryptionManager'], function (CyphorMessageClient, parseChannel, CyphorObserver, CyphorIframeLib, simulateInput, ButtonInterceptor, DecryptionManager) {
+define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 'InputOverlay', 'simulateInput', 'ButtonInterceptor', 'DecryptionManager', 'CyphorInput.class'], function (CyphorMessageClient, parseChannel, CyphorObserver, InputOverlay, simulateInput, ButtonInterceptor, DecryptionManager, CyphorInputClass) {
 	console.log('CyphorInput.content.js', arguments);
 
 	var CyphorInputsList = [];
@@ -24,7 +24,8 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 			existing[0].insertIframe();
 		} else {
 
-			var cyphorInputObj = new CyphorInput(elemsObj, channelObj);
+			//var cyphorInputObj = new CyphorInput(elemsObj, channelObj);
+			var cyphorInputObj = CyphorInputClass.create(elemsObj, channelObj);
 
 			// add references to the cyphorInput Object
 			CyphorInputsList.push(cyphorInputObj);
@@ -190,16 +191,17 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 	CyphorInput.prototype.insertIframe = function() {
 
 		// double check that this element doesn't already have a channel associated with it
-		if(this.targetElem.CyphorInput){
+		if(this.inputOverlay && this.inputOverlay.index.byTargetElement.has()){
+			console.warn('duplicate_object', 'InputOverlay already exists on this element');
 			return;
 		}
 
-		var ifr = CyphorIframeLib.insertIframe(this.targetElem, this.channel);
-		this.iframe = ifr;
+		this.inputOverlay = InputOverlay.create(this.targetElem, this.channel);
+		this.iframe = this.inputOverlay.iframe_element;
 
 		// listen for removal of this iframe and reinsert if channel is still configured
 		var thisCyph = this;
-		CyphorObserver.on('remove', ifr, function (mutationRecord) {
+		CyphorObserver.on('remove', this.iframe, function (mutationRecord) {
 			if(mutationRecord.type == 'childList'){
 				// iframe was removed, create a new CyphorInput Object
 				setTimeout(function () {
@@ -215,7 +217,7 @@ define('CyphorInput', ['CyphorMessageClient', 'parseChannel', 'CyphorObserver', 
 			}
 		});
 
-		this.targetElem.parentElement.appendChild(ifr);
+		this.targetElem.parentElement.appendChild(this.iframe);
 
 		// update references
 		this.targetElem.CyphorInput = this;

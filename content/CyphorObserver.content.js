@@ -35,7 +35,7 @@ define('CyphorObserver', [], function () {
 					//if((removedNode.textContent.toString() || removedNode.innerText.toString()).indexOf('Angus') > -1 || (mutRec.target.textContent.toString() || mutRec.target.innerText.toString()).indexOf('Angus') > -1) debugger;
 					var removeListener;
 					if(listener.target == mutRec.target || listener.target == removedNode || (removedNode.contains && removedNode.contains(listener.target))){
-						removeListener = listener.listener.call(listener.target, mutRec, listener);
+						removeListener = listener.listener.call(listener.target, mutRec);
 						// if the listener was called automatically clear the remove listeners
 						if(removeListener) index.remove.splice(ind, 1);
 					}
@@ -49,7 +49,7 @@ define('CyphorObserver', [], function () {
 				return list.target === mutRec.target || list.target.contains(mutRec.target);
 			}).forEach(function (list, ind) {
 				//console.log('triggereing listener', list, mutRec);
-				var removeListener = list.listener.call(list.target, mutRec, list);
+				var removeListener = list.listener.call(list.target, mutRec);
 				if(removeListener) index.change.splice(ind, 1);
 			});
 		}
@@ -84,12 +84,9 @@ define('CyphorObserver', [], function () {
 		});
 	}
 
-	function removeListener (eventName, elem) {
-		index[eventName].forEach(function (listener, ind) {
-			if(listener.target == elem){
-				index[eventName].splice(ind, 1);
-			}
-		});
+	function removeListener (eventName, target, listener) {
+		var filtObj = _.pickBy({target, listener});
+		_.remove(index[eventName], _.matches(filtObj));
 	}
 
 	function addObserver (element, fn) {

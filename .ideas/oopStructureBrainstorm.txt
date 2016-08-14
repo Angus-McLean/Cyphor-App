@@ -1,6 +1,6 @@
-Classes : 
+Classes :
 	- EventEmitter
-	- IframeOverlay	
+	- IframeOverlay
 		- targetElem
 		- iframe_elem
 	- buttonOverlay extends iframeOverlay
@@ -8,27 +8,29 @@ Classes :
 	- inputOverlay extends iframeOverlay
 	- EventSimulator
 		(tracks input / events that were sent to overlaid element)
-	
+	- TextSimulator extends EventSimulator
+		(has additional methods for sending text input to websites)
+	- Channel
 	- CyphorInput
 		- EventEmitter
 		- buttonOverlay
 			- EventSimulator
 		- InputOverlay
 			- EventSimulator
-			
+
 	- ChromeMessageClient
 		- EventEmitter
-	
-	- CyphorMessage 
+
+	- CyphorMessageObject
 		- EventEmitter
 		- InlineTextOverlay
-	
-Factories : 
+
+Factories :
 	- IframeOverlay
 	- ButtonOverlay
 	- CyphorMessageFactory
 
-Singletons : 
+Singletons :
 	- DOM_Observer
 	- Configure_Channel
 		(handles user setting up a new channel)
@@ -36,10 +38,9 @@ Singletons :
 	- Logger
 	- Main
 
-Libraries : 
+Libraries :
 	- SendInput
 	- DOMWalker
 	- DOM_UI
 	- IframeUtils
 	- Send_Event
-	

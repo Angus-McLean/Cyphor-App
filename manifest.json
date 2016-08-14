@@ -22,7 +22,13 @@
 		{
 			"matches": ["http://*/*", "https://*/*"],
 			"js": [
-				"content/injectInterceptor.content.js",
+				"content/injectInterceptor.content.js"
+			],
+			"run_at": "document_start"
+		},
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": [
 				"lib/bower_components/lodash/dist/lodash.min.js",
 				"lib/bower_components/requirejs/require.min.js",
 				"lib/ChromeConnect.js",
@@ -39,8 +45,14 @@
 				"content/CyphorChannels.content.js",
 				"content/CyphorIframeLib.content.js",
 				"content/ButtonInterceptor.content.js",
-				"content/CyphorInput.content.js",
-				"content/simulateInput.content.js"
+
+				"content/simulateInput.content.js",
+				"content/EventEmitter.class.js",
+				"content/IframeOverlay.class.js",
+				"content/DOMEventSimulator.class.js",
+				"content/InputOverlay.class.js",
+				"content/CyphorInput.class.js",
+				"content/CyphorInputManager.singleton.js"
 			],
 			"run_at": "document_start"
 		}

@@ -19,8 +19,12 @@ define('CyphorIframeLib', [], function () {
 		}, dest);
 	}
 
-	function insertIframe (siblingElem, channelObj) {
-
+	/**
+	 * Parses target element's styles into a message to be passed to iframe so it can recreate input elements inside iframe
+	 * @param {Element} siblingElem : The target element
+	 * @returns Message to be passed to iframe
+	 */
+	function buildInnerStylingMessage(siblingElem) {
 		var parStyle = window.getComputedStyle(siblingElem.parentElement);
 		var parStyleJSON = JSON.parse(JSON.stringify(parStyle));
 		//parStyleJSON.length = parStyle.length;
@@ -42,8 +46,16 @@ define('CyphorIframeLib', [], function () {
 		};
 
 		console.log(messageObj);
-		// create the iframe Element
 
+		return messageObj;
+	}
+
+	/**
+	 * Creates the Iframe Element and adds the default styling to the iframe element
+	 * @param {Element} siblingElem : the targetElem
+	 * @returns the iframe element. Not yet inserted into the DOM
+	 */
+	function createIframeFromSib(siblingElem) {
 		var iframe = document.createElement('iframe');
 
 		iframe.allowtransparency = "true";
@@ -51,7 +63,8 @@ define('CyphorIframeLib', [], function () {
 		iframe.scrolling = "no";
 
 		iframe.style["z-index"] = getZIndex(siblingElem) + 1;
-		iframe.style.backgroundColor = parStyle.backgroundColor;
+		// defaults backgroundColor to '' if not defined in parent element
+		//iframe.style.backgroundColor = (siblingElem.parentElement && siblingElem.parentElement.style) ? (siblingElem.parentElement.style.backgroundColor) || '' : '';
 		iframe.style.position = "absolute";
 		var {height, width} = siblingElem.getClientRects()[0];
 		iframe.style.height = height + 'px';
@@ -62,11 +75,20 @@ define('CyphorIframeLib', [], function () {
 		iframe.style.border = "0px none transparent";
 		iframe.style.padding = "0px";
 
+		return iframe;
+	}
+
+	function insertIframe (siblingElem, channelObj) {
+
+		var msgObj = buildInnerStylingMessage(siblingElem);
+
+		// create the iframe Element
+		var iframe = createIframeFromSib(siblingElem);
+
 		iframe.src = chrome.runtime.getURL('/iframe/div.iframe.html');
 		siblingElem.parentElement.appendChild(iframe);
 
 		iframe.onload = function () {
-			//iframe.contentWindow.postMessage({action:'INSERT'}, '*', [messageObj])
 
 			// send channel object to iframe
 			iframe.contentWindow.postMessage({
@@ -74,7 +96,7 @@ define('CyphorIframeLib', [], function () {
 				channel:channelObj || null
 			}, '*');
 
-			iframe.contentWindow.postMessage(messageObj, '*');
+			iframe.contentWindow.postMessage(msgObj, '*');
 			iframe.focus();
 			iframe.contentWindow.postMessage({action:'FOCUS'}, '*');
 
@@ -82,28 +104,13 @@ define('CyphorIframeLib', [], function () {
 				iframe.contentWindow.focus();
 			}
 		};
-		//siblingElem.originalDisplay = (siblingElem.style) ? siblingElem.style.display : '';
-		//siblingElem.style.display = 'none';
 
 		return iframe;
 	}
 
 	function insertButtonFrame (siblingElem, channelObj) {
 
-		var iframe = document.createElement('iframe');
-
-		iframe.allowtransparency = 'true';
-		iframe.frameborder = '0';
-
-		//iframe.style["background-color"] = "rgba(0, 0, 255, 0.42)";
-		iframe.style["z-index"] = "1000";
-		iframe.style.position = "absolute";
-		iframe.style.height = "100%";
-		iframe.style.width = "100%";
-		iframe.style.overflow = "hidden";
-		iframe.style.border = "0px none transparent";
-		iframe.style.top = "0px";
-		iframe.style.left = "0px";
+		var iframe = createIframeFromSib(siblingElem);
 
 		iframe.src = chrome.runtime.getURL('/iframe/button.iframe.html');
 
@@ -132,9 +139,11 @@ define('CyphorIframeLib', [], function () {
 	}
 
 	return {
-		insertIframe : insertIframe,
-		insertButtonFrame : insertButtonFrame,
-		getElemBelowIframe : getElemBelowIframe
+		insertIframe,
+		insertButtonFrame,
+		getElemBelowIframe,
+		buildInnerStylingMessage,
+		createIframeFromSib
 	};
 
 });
